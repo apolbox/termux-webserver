@@ -1,0 +1,21 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+#
+option="${1}";
+config=/sdcard/www/etc/.lighttpd/config/lighttpd.conf
+host=127.0.0.1
+port=8080
+
+case ${option} in
+	"start")
+		lighttpd -f $config
+		echo -e "\e[32;mWebserver berjalan di http://$host:$port/\n\e[0m";;
+
+	"stop")
+		echo -e "\e[32;mMenghentikan webserver yang berjalan di http://$host:$port/\e[0m\n";
+		killall lighttpd;;
+
+	*)
+		echo "usage: ./`basename ${0}` [start|stop]" 
+      		exit 1 # Command to come out of the program with status 1;;
+esac
