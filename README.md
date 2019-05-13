@@ -6,7 +6,7 @@ Syarat:
 1. Termux app
 2. Internet
 
-#Panduan:
+# Panduan:
 Buka aplikasi termux terlebih dahulu, setelah itu install paket git.
 
 Dan masukan perintah dibawah ini:
