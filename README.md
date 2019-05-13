@@ -9,6 +9,9 @@ Bagi yang ingin install webserver di android
 
 # Panduan:
 Buka aplikasi termux terlebih dahulu, setelah itu install paket git.
+Untuk menginstal paket git gunakan perintah dibawah ini:
+
+    $ apt install git
 
 Dan masukan perintah dibawah ini:
 
