@@ -1,6 +1,1 @@
-2019-05-13 13:26:36: (/var/lib/termux-build/lighttpd/src/src/server.c.1464) server started (lighttpd/1.4.53) 
-2019-05-13 13:26:36: (/var/lib/termux-build/lighttpd/src/src/server.c.1493) WARNING: unknown config-key: server.host (ignored) 
-2019-05-13 13:26:57: (/var/lib/termux-build/lighttpd/src/src/server.c.2059) server stopped by UID = 10277 PID = 1777 
-2019-05-13 13:28:50: (/var/lib/termux-build/lighttpd/src/src/server.c.1464) server started (lighttpd/1.4.53) 
-2019-05-13 13:28:50: (/var/lib/termux-build/lighttpd/src/src/server.c.1493) WARNING: unknown config-key: server.host (ignored) 
-2019-05-13 13:28:58: (/var/lib/termux-build/lighttpd/src/src/server.c.2059) server stopped by UID = 10277 PID = 1964 
+
