@@ -19,7 +19,7 @@ termux-setup-storage
 
 # Menyalin source folder ke target
 source=".lighttpd";
-target="/sdcard/etc/lighttpd";
+target="/sdcard/www/etc/lighttpd";
 
 if ! [ -d $target ]; then
 	mkdir -p $target;
