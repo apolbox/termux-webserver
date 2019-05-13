@@ -10,6 +10,7 @@ for index in ${!paket[@]}; do
 	else
 		echo -e "Paket [${paket[$index]}] belum terinstall.";
 		apt install "${paket[$index]}";
+		continue;
 	fi
 done
 
