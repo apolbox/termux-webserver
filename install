@@ -30,5 +30,11 @@ fi
 echo -e "\e[32;mPaket berhasil diinstall\e[0m\n";
 cp -rf $source $target;
 
+# Memindahkan lampp script to /data/data/com.termux/files/usr/bin/
+mv lampp /data/data/com.termux/files/usr/bin/
+
+# Fix script lampp
+termux-fix-shebang /data/data/com.termux/files/usr/bin/lampp
+
 # Contoh untuk menjalankan webserver
-./lampp
+lampp
