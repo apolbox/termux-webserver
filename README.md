@@ -19,4 +19,11 @@ Dan masukan perintah dibawah ini:
     $ cd termux-webserver
     $ ./install
 
-Tunggu sampai selesai.
+Tunggu sampai selesai dan untuk menjalankan webserver ketikan perintah berikut:
+
+    $ lampp [start|stop] [-v version]
+
+Untuk menguninstall webserver masukan perintah berikut:
+
+    $ ./uninstall
+
