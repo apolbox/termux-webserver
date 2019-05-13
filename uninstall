@@ -1,0 +1,13 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+#
+clear
+
+# Proses menghapus lampp dari sistem termux
+rm -rf /data/data/com.termux/files/usr/bin/lampp
+
+# Hapus paket lighttpd dan php
+apt remove lighttpd php
+apt update
+
+echo -e "\e[32;mBerhasil menghapus lampp.\e0m\n";
