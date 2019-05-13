@@ -16,6 +16,6 @@ case ${option} in
 		killall lighttpd;;
 
 	*)
-		echo "usage: ./`basename ${0}` [start|stop]" 
+		echo "usage: `basename ${0}` [start|stop]" 
       		exit 1 # Command to come out of the program with status 1;;
 esac
