@@ -29,11 +29,11 @@ Untuk menguninstall webserver masukan perintah berikut:
 
 # Fitur yang akan datang
 
-> phpMyAdmin
-> mariadb
+* phpMyAdmin
+* mariadb
 
 # Kontak kami
 
-> facebook	: https://www.facebook.com/ayus.filla
-> email		: ayus.sahabat@gmail.com
-> whatsapp	: 088221990408
+* facebook	: https://www.facebook.com/ayus.filla
+* email		: ayus.sahabat@gmail.com
+* whatsapp	: 088221990408
