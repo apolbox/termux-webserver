@@ -108,7 +108,7 @@ settings()
 {
     for i in {1..25};
     do
-        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/=/g'
+        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/-/g'
     done
     
     echo -ne "\n\e[32;mPengaturan tambahan untuk webserver.\e[0m\n\n";

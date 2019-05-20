@@ -9,29 +9,14 @@ source library/func
 
 lamppScript()
 {
-    progress "[Loading]" 27
+    progress "Proses install lampp script" 10
     
     cp lampp-script /data/data/com.termux/files/usr/bin/lampp
     
     echo -e "\e[32;mBerhasil menginstall lampp script.\e[0m\n"
     bash lampp --help
     
-    echo -ne "\nApakah Anda ingin mengatur link direktori kerja? ";
-    read -p "[Y/N] (Tekan enter untuk batal) " jawaban
-            
-    case ${jawaban} in
-        "Y"|"y")
-            __ln
-            ;;
-                    
-        "N"|"n")
-            continue
-            ;;
-                    
-        *)
-            exit 1
-            ;;
-    esac
+    exit 1
 }
 
 # Mengatur symbolic direktori
@@ -58,7 +43,7 @@ formCheckSourceLN()
     if [ ! -z ${source} ]; then
         # Cek apakah direktori source ada
         if ! [ -d ${source} ]; then
-            formSymbolic
+            formSymbolic ${source}
         else
             echo -e "\e[31;mDirektori ${source} tidak dapat ditemukan.\e[0m"
         fi
@@ -67,19 +52,28 @@ formCheckSourceLN()
     fi
 }
 
-formSymbolicLN()
+formSymbolic()
 {
-    echo -e "Masukan direktori symbolic contoh: /data/data/com.termux/files/usr/var"
+    echo -e "\e[32;m>\e[0m Masukan direktori symbolic link contoh: /data/data/com.termux/files/usr/var"
     read -p "Symbolic folder: " target
     
     progress "[Checking]" 10
     
-    formCheckSymbolic
+    formCheckSymbolic ${1} ${2}
 }
 
 formCheckSymbolic()
 {
-    echo $target
+    # Cek symbolic jika sudah ada
+    if ! [ -h ${2}/www ]; then
+        echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
+        
+        lamppScript
+    else
+        proot ln -s ${1} $}2}
+        echo -e "\e[32;mBerhasil membuat symnolic link.\e[0m"
+        lamppScript
+    fi
 }
 
 case ${1} in
