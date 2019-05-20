@@ -1,0 +1,16 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Installation Webserver
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
+# @lisence GPL
+#
+source library/func
+
+# Daftar paket
+paket=($(cat daftar-paket.txt | tr '\n' ' '));
+
+# Mengatur penyimpanan
+termux-setup-storage
+
+__init
