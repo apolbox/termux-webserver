@@ -1,0 +1,92 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Installation Webserver
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
+# @lisence GPL
+#
+source library/func
+
+lamppScript()
+{
+    progress "[Loading]" 27
+    
+    cp lampp-script /data/data/com.termux/files/usr/bin/lampp
+    
+    echo -e "\e[32;mBerhasil menginstall lampp script.\e[0m\n"
+    bash lampp --help
+    
+    echo -ne "\nApakah Anda ingin mengatur link direktori kerja? ";
+    read -p "[Y/N] (Tekan enter untuk batal) " jawaban
+            
+    case ${jawaban} in
+        "Y"|"y")
+            __ln
+            ;;
+                    
+        "N"|"n")
+            continue
+            ;;
+                    
+        *)
+            exit 1
+            ;;
+    esac
+}
+
+# Mengatur symbolic direktori
+__ln()
+{
+    while true;
+    do
+        formSourceLN
+    done
+}
+
+formSourceLN()
+{
+    echo -e "\n\e[32;m>\e[0m Masukan direktori source contoh: ~/storage/shared/www"
+    read -p "Source folder: " source
+    
+    progress "[Checking]" 10
+    
+    formCheckSourceLN
+}
+
+formCheckSourceLN()
+{
+    if [ ! -z ${source} ]; then
+        # Cek apakah direktori source ada
+        if ! [ -d ${source} ]; then
+            formSymbolic
+        else
+            echo -e "\e[31;mDirektori ${source} tidak dapat ditemukan.\e[0m"
+        fi
+    else
+        echo -e "\e[31;mMaaf, Anda tidak memasukkan direktori source.\e[0m"
+    fi
+}
+
+formSymbolicLN()
+{
+    echo -e "Masukan direktori symbolic contoh: /data/data/com.termux/files/usr/var"
+    read -p "Symbolic folder: " target
+    
+    progress "[Checking]" 10
+    
+    formCheckSymbolic
+}
+
+formCheckSymbolic()
+{
+    echo $target
+}
+
+case ${1} in
+    "--ln")
+        __ln
+        ;;
+    "--ls")
+        lamppScript
+        ;;
+esac
