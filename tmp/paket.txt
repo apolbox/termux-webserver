@@ -1,3 +1,0 @@
-[31;m[x][0m
-apache2
-Belum terinstall
