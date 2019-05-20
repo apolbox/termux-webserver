@@ -1,0 +1,148 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Installation Webserver
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
+# @lisence GPL
+#
+welcome()
+{
+    clear;
+    
+    echo -e "\e[32;mSelamat datang di Webserver Android\e[0m\n";
+    
+    cat docs/selamat-datang.txt;
+}
+
+__init()
+{
+    welcome;
+    
+    progress "Sedang memuat paket" 3;
+    
+    paketWebServer;
+}
+
+paketWebServer()
+{
+    # Tampilkan daftar paket
+    daftarPaket
+    
+    # Install paket yang diinginkan
+    for install in ${!paket[@]}; do
+        cekPaket ${paket[$install]}
+        
+        if [ $? -eq 0 ]; then
+            echo -e "\n\e[32;mSemua paket sudah terinstall dengan baik.\e[0m\n";
+            
+            settings
+            
+            return 1
+        else
+            echo -ne "\nPaket \e[31;m[${paket[$install]}]\e[0m belum terinstall, Apakah Anda ingin menginstall? ";
+            read -p "[Y/N] (Tekan enter untuk batal) " jawaban
+            
+            case ${jawaban} in
+                "Y"|"y")
+                    apt install ${paket[$install]}
+                    daftarPaket
+                    ;;
+                    
+                "N"|"n")
+                    echo -ne "\n"
+                    continue
+                    ;;
+                    
+                *)
+                    echo -ne "\n" | exit 1
+                    ;;
+            esac
+        fi
+    done
+}
+
+cekPaket()
+{
+    dpkg -s $1 &> /dev/null
+}
+
+daftarPaket()
+{
+    # Daftar paket yang terinstall dan belum terinstall
+    
+    echo -e "\e[34;mStatus\nPaket\nKeterangan\e[0m" > tmp/paket.header.txt;
+    cat tmp/paket.header.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
+    
+    for index in ${!paket[@]}; do
+        cekPaket ${paket[$index]}
+        
+        if [ $? -eq 0 ]; then
+            echo -e "\e[32;m[√]\e[0m\n${paket[$index]}\nTerinstall" > tmp/paket_installed.txt;
+            cat tmp/paket_installed.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
+        else
+            echo -e "\e[31;m[x]\e[0m\n${paket[$index]}\nBelum terinstall" > tmp/paket_uninstalled.txt;
+            cat tmp/paket_uninstalled.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
+        fi
+    done
+}
+
+progress()
+{
+    echo -ne "\n\e[33;m${1}\e[0m ";
+    
+    timeout=0;
+    
+    echo -ne "\e[34;m";
+    
+    while [ $timeout -lt ${2} ]
+    do
+        timeout=`expr $timeout + 1`
+        echo -ne "${timeout}" | sed 's/[0-9]/./g';
+        sleep 1
+    done
+    
+    echo -ne "\e[0m\n\n";
+}
+
+settings()
+{
+    for i in {1..25};
+    do
+        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/=/g'
+    done
+    
+    echo -ne "\n\e[32;mPengaturan tambahan untuk webserver.\e[0m\n\n";
+    cat docs/pengaturan-tambahan.txt
+    
+    if ! [ command -v lampp >/dev/null 2&>1 ]; then
+        echo -ne "\n\e[32;m>\e[0m Apakah Anda ingin mengatur link direktori kerja? ";
+        read -p "[Y/N] (Tekan enter untuk batal) " jawaban
+            
+        case ${jawaban} in
+            "Y"|"y")
+                bash library/settings --ln
+                ;;
+                    
+            "N"|"n"|*)
+                exit 1
+                ;;
+        esac
+    else
+        echo -ne "\n\e[32;m>\e[0m Apakah Anda ingin menginstall lampp-script? ";
+        read -p "[Y/N] (Tekan enter untuk batal) " jawaban
+            
+        case ${jawaban} in
+            "Y"|"y")
+                bash library/setting --ls
+                ;;
+                    
+            "N"|"n")
+                exit 1
+                ;;
+                    
+            *)
+                exit 1
+                ;;
+        esac
+    fi
+}
