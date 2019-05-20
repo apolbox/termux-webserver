@@ -1,0 +1,3 @@
+[32;m[√][0m
+git
+Terinstall
