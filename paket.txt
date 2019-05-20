@@ -1,1 +1,0 @@
-[x] mariadb|belum_terinstall
