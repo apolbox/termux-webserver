@@ -16,7 +16,7 @@ case ${option} in
         killall lighttpd;;
     
     "--help")
-        echo "usage: `basename ${0}` [start|stop] [--edit-document-root document-root] [-v version] [--help help]"
+        echo -e "usage: `basename ${0}` [start|stop] [--edit-document-root document-root] [-v version] [--help help]\n"
         ;; 
 
     "--edit-document-root")
