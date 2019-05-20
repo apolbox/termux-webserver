@@ -1,0 +1,20 @@
+Sebuah paket instalasi webserver yang digunakan
+untuk mengembangkan aplikasi berbasis web.
+
+Paket yang tersedia saat ini:
+1. lighttpd
+2. mariadb
+3. php
+
+Anda dapat menemukan repositorinya di https://github.com
+Untuk mengunduhnya anda dapat mengunjungi link dibawah ini:
+
+@url https://github.com/apolbox/termux-webserver.git
+
+# Kontak kami
+
+* facebook  : https://www.facebook.com/ayus.filla
+* email     : ayus.sahabat@gmail.com
+* whatsapp  : +6288221990408
+
+Mulai sekarang.
