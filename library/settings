@@ -90,7 +90,7 @@ formCheckSymbolic()
         echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
         lamppScriptQuestion
     else
-        proot ln -s ${source} ${target}
+        ln -s ${source} ${target}
         echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
         lamppScriptQuestion
     fi
