@@ -5,20 +5,18 @@
 # @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
 # @lisence GPL
 #
-source library/func
-
 lamppScript()
 {
     progress "Menyalin data konfigurasi" 15
     cp -rf etc /data/data/com.termux/files/usr/var/
     cp -rf tmp /data/data/com.termux/files/usr/var/
     echo -e "\e[32;m[√] Sukses menyalin data.\e[0m"
-    
+
     progress "Menginstall lampp script" 15
     cp lampp-script /data/data/com.termux/files/usr/bin/lampp
     echo -e "\e[32;m[√] Berhasil menginstall lampp script.\e[0m\n"
     bash lampp --help
-    
+
     exit 1
 }
 
@@ -26,12 +24,12 @@ lamppScriptQuestion()
 {
     echo -ne "\n\e[32;m>\e[0m Apakah Anda ingin menginstall lampp-script? ";
     read -p "[Y/N] (Tekan enter untuk batal) " jawaban
-            
+
     case ${jawaban} in
         "Y"|"y")
             lamppScript
             ;;
-                    
+
         "N"|"n"|*)
             echo -ne "\n"
             lampp --help
@@ -53,10 +51,10 @@ formSourceLN()
 {
     echo -e "\n\e[32;m>\e[0m Masukan direktori source contoh: ~/storage/shared/www"
     read -p "Source folder: " source
-    
+
     progress "[Cek direktori]" 10
-    
-    formCheckSourceLN
+
+    formCheckSourceLN ${source}
 }
 
 formCheckSourceLN()
@@ -77,9 +75,9 @@ formSymbolic()
 {
     echo -e "\e[32;m>\e[0m Masukan direktori symbolic link contoh: /data/data/com.termux/files/usr/var"
     read -p "Symbolic folder: " target
-    
+
     progress "[Cek symbolic link]" 10
-    
+
     formCheckSymbolic ${source} ${target}
 }
 
@@ -102,10 +100,28 @@ formCheckSymbolic()
             cp ~/createlink /data/data/com.termux/files/usr/bin/
             createlink $source $target
         fi
-        
+
         #echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
         lamppScriptQuestion
     fi
+}
+
+progress()
+{
+    echo -ne "\n\e[33;m${1}\e[0m ";
+
+    timeout=0;
+
+    echo -ne "\e[34;m";
+
+    while [ $timeout -lt ${2} ]
+    do
+        timeout=`expr $timeout + 1`
+        echo -ne "${timeout}" | sed 's/[0-9]/./g';
+        sleep 1
+    done
+
+    echo -ne "\e[0m\n\n";
 }
 
 case ${1} in
