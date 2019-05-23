@@ -4,3 +4,4 @@ mariadb
 wget
 curl
 git
+nano
