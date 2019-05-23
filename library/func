@@ -8,9 +8,10 @@
 welcome()
 {
     clear;
-    
-    echo -e "\e[32;mSelamat datang di Webserver Android\e[0m\n";
-    
+
+    echo "Selamat datang di Webserver Android" | tr '[:lower:]' '[:upper:]' > tmp/banner.txt
+
+    echo -ne "\e[32;m$(cat tmp/banner.txt)\e[0m\n\n"
     cat docs/selamat-datang.txt;
 }
 
@@ -29,22 +30,18 @@ paketWebServer()
     daftarPaket
     
     # Install paket yang diinginkan
-    for install in ${!paket[@]}; do
-        cekPaket ${paket[$install]}
+    for i in ${!paket[@]}
+    do
+        cekPaket ${paket[$i]}
         
-        if [ $? -eq 0 ]; then
-            echo -e "\n\e[32;mSemua paket sudah terinstall dengan baik.\e[0m\n";
-            
-            settings
-            
-            return 1
-        else
-            echo -ne "\nPaket \e[31;m[${paket[$install]}]\e[0m belum terinstall, Apakah Anda ingin menginstall? ";
+        [ $? -eq 0 ] || {
+            echo -ne "\nPaket \e[31;m[${paket[$i]}]\e[0m belum terinstall, Apakah Anda ingin menginstall? ";
             read -p "[Y/N] (Tekan enter untuk batal) " jawaban
             
             case ${jawaban} in
                 "Y"|"y")
-                    apt install ${paket[$install]}
+                    apt install ${paket[$i]} -y
+                    echo -ne "\n"
                     daftarPaket
                     ;;
                     
@@ -57,8 +54,10 @@ paketWebServer()
                     echo -ne "\n" | exit 1
                     ;;
             esac
-        fi
+        }
     done
+    
+    settings
 }
 
 cekPaket()
@@ -70,19 +69,38 @@ daftarPaket()
 {
     # Daftar paket yang terinstall dan belum terinstall
     
+    for i in {1..30}
+    do
+        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/-/g'
+    done
+    
+    echo -ne "\n|"
     echo -e "\e[34;mStatus\nPaket\nKeterangan\e[0m" > tmp/paket.header.txt;
     cat tmp/paket.header.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
+    
+    for i in {1..30}
+    do
+        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/-/g'
+    done
+    
+    echo -ne "\n"
     
     for index in ${!paket[@]}; do
         cekPaket ${paket[$index]}
         
         if [ $? -eq 0 ]; then
-            echo -e "\e[32;m[√]\e[0m\n${paket[$index]}\nTerinstall" > tmp/paket_installed.txt;
+            echo -ne "| "
+            echo -ne "\e[32;m[√]\e[0m\n${paket[$index]}\nTerinstall\n" > tmp/paket_installed.txt;
             cat tmp/paket_installed.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
         else
             echo -e "\e[31;m[x]\e[0m\n${paket[$index]}\nBelum terinstall" > tmp/paket_uninstalled.txt;
             cat tmp/paket_uninstalled.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
         fi
+    done
+    
+    for i in {1..30}
+    do
+        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/-/g'
     done
 }
 
@@ -106,10 +124,7 @@ progress()
 
 settings()
 {
-    for i in {1..25};
-    do
-        echo -ne "${i}" | tr -d '\n' | sed 's/[0-9]/-/g'
-    done
+    echo -ne "\n"
     
     echo -ne "\n\e[32;mPengaturan tambahan untuk webserver.\e[0m\n\n";
     cat docs/pengaturan-tambahan.txt
@@ -124,7 +139,7 @@ settings()
                 ;;
                     
             "N"|"n"|*)
-                exit 1
+                bash library/settings --lsq
                 ;;
         esac
     else
@@ -133,14 +148,11 @@ settings()
             
         case ${jawaban} in
             "Y"|"y")
-                bash library/setting --ls
+                bash library/settings --ls
                 ;;
                     
-            "N"|"n")
-                exit 1
-                ;;
-                    
-            *)
+            "N"|"n"|*)
+                lampp --help
                 exit 1
                 ;;
         esac

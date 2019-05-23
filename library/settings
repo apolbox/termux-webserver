@@ -9,14 +9,35 @@ source library/func
 
 lamppScript()
 {
-    progress "Proses install lampp script" 10
+    progress "Menyalin data konfigurasi" 15
+    cp -rf etc /data/data/com.termux/files/usr/var/
+    cp -rf tmp /data/data/com.termux/files/usr/var/
+    echo -e "\e[32;m[√] Sukses menyalin data.\e[0m"
     
+    progress "Menginstall lampp script" 15
     cp lampp-script /data/data/com.termux/files/usr/bin/lampp
-    
-    echo -e "\e[32;mBerhasil menginstall lampp script.\e[0m\n"
+    echo -e "\e[32;m[√] Berhasil menginstall lampp script.\e[0m\n"
     bash lampp --help
     
     exit 1
+}
+
+lamppScriptQuestion()
+{
+    echo -ne "\n\e[32;m>\e[0m Apakah Anda ingin menginstall lampp-script? ";
+    read -p "[Y/N] (Tekan enter untuk batal) " jawaban
+            
+    case ${jawaban} in
+        "Y"|"y")
+            lamppScript
+            ;;
+                    
+        "N"|"n"|*)
+            echo -ne "\n"
+            lampp --help
+            exit 1
+            ;;
+    esac
 }
 
 # Mengatur symbolic direktori
@@ -33,7 +54,7 @@ formSourceLN()
     echo -e "\n\e[32;m>\e[0m Masukan direktori source contoh: ~/storage/shared/www"
     read -p "Source folder: " source
     
-    progress "[Checking]" 10
+    progress "[Cek direktori]" 10
     
     formCheckSourceLN
 }
@@ -57,22 +78,21 @@ formSymbolic()
     echo -e "\e[32;m>\e[0m Masukan direktori symbolic link contoh: /data/data/com.termux/files/usr/var"
     read -p "Symbolic folder: " target
     
-    progress "[Checking]" 10
+    progress "[Cek symbolic link]" 10
     
-    formCheckSymbolic ${1} ${2}
+    formCheckSymbolic ${source} ${target}
 }
 
 formCheckSymbolic()
 {
     # Cek symbolic jika sudah ada
-    if ! [ -h ${2}/www ]; then
+    if [ -h ${target}/www ]; then
         echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
-        
-        lamppScript
+        lamppScriptQuestion
     else
-        proot ln -s ${1} $}2}
-        echo -e "\e[32;mBerhasil membuat symnolic link.\e[0m"
-        lamppScript
+        proot ln -s ${source} ${target}
+        echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
+        lamppScriptQuestion
     fi
 }
 
@@ -82,5 +102,8 @@ case ${1} in
         ;;
     "--ls")
         lamppScript
+        ;;
+    "--lsq")
+        lamppScriptQuestion
         ;;
 esac
