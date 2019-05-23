@@ -2,14 +2,15 @@
 #
 #
 option="${1}";
-config=/data/data/com.termux/files/usr/var/www/etc/config/lighttpd.conf
+fileConfig=/data/data/com.termux/files/usr/var/etc/config/lighttpd.conf
 host=127.0.0.1
 port=8080
 
 case ${option} in
     "start")
-        lighttpd -f $config
-        echo -e "\e[32;mWebserver berjalan di http://$host:$port/\n\e[0m";;
+        lighttpd -f $fileConfig
+        echo -e "\e[32;mWebserver berjalan di http://$host:$port/\n\e[0m"
+        ;;
 
     "stop")
         echo -e "\e[32;mMenghentikan webserver yang berjalan di http://$host:$port/\e[0m\n";
@@ -20,15 +21,15 @@ case ${option} in
         ;; 
 
     "--edit-document-root")
-	echo "${2}" > tmp.txt | sed -i 's=/=\\/=g' tmp.txt;
-	x=$(cat tmp.txt | awk '{print $1}')
-	y=$(cat ${config} | tr '\n' '\r' | awk '{print $1}')
-	sed -i "s|${y}|${x}|g" ${config};;
+        echo "${2}" > tmp.txt | sed -i 's=/=\\/=g' tmp.txt;
+        x=$(cat tmp.txt | awk '{print $1}')
+	    y=$(cat ${config} | tr '\n' '\r' | awk '{print $1}')
+	    sed -i "s|${y}|${x}|g" ${config};;
 
     "-v")
-	echo -e "\e[32;mLampp version \e[31;m1.0\e[0m\e[0m";;
+	    echo -e "\e[32;mLampp version \e[31;m1.0\e[0m\e[0m";;
 
     *)
-	echo "usage: `basename ${0}` [start|stop] [--edit-document-root document-root] [-v version]" 
-	exit 1 # Command to come out of the program with status 1;;
+	    echo "usage: `basename ${0}` [start|stop] [--edit-document-root document-root] [-v version]" 
+	    exit 1 # Command to come out of the program with status 1;;
 esac
