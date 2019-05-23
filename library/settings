@@ -92,11 +92,11 @@ formCheckSymbolic()
     else
         if [ -f ~/createlink ]; then
             rm ~/createlink
-            wget -bP ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
+            wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
             chmod +x ~/createlink
             ~/./createlink $source $target
         else
-            wget -bP ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
+            wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
             chmod +x ~/createlink
             ~/./createlink $source $target
         fi
