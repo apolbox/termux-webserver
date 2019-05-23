@@ -94,14 +94,16 @@ formCheckSymbolic()
             rm ~/createlink
             wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
             chmod +x ~/createlink
-            ~/./createlink $source $target
+            cp ~/createlink /data/data/com.termux/files/usr/bin/
+            createlink $source $target
         else
             wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
             chmod +x ~/createlink
-            ~/./createlink $source $target
+            cp ~/createlink /data/data/com.termux/files/usr/bin/
+            createlink $source $target
         fi
         
-        echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
+        #echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
         lamppScriptQuestion
     fi
 }
