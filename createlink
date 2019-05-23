@@ -3,5 +3,9 @@
 source=${1}
 target=${2}
 
-ln -s $source $target
+if [ $(ln -s $source $target) ]; then
+    echo "Sukses $source $target";
+else
+    echo "Failed $source $target"
+fi
 
