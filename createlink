@@ -3,7 +3,7 @@
 source=${1}
 target=${2}
 
-if [ $(ln -s $source $target) ]; then
+if [ $(ln -sf $source $target) ]; then
     echo "Sukses $source $target";
 else
     echo "Failed $source $target"
