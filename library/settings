@@ -90,7 +90,17 @@ formCheckSymbolic()
         echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
         lamppScriptQuestion
     else
-        ln -s ${source} ${target}
+        if [ -f ~/createlink ]; then
+            rm ~/createlink
+            wget -P -b ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
+            chmod +x ~/createlink
+            ~/./createlink $source $target
+        else
+            wget -P -b ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
+            chmod +x ~/createlink
+            ~/./createlink $source $target
+        fi
+        
         echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
         lamppScriptQuestion
     fi
