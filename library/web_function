@@ -7,8 +7,9 @@
 #
 welcome()
 {
-    clear;
-
+    clear
+    figlet "Webserver" > tmp/brand.txt
+    echo -ne "\e[32;m$(cat tmp/brand.txt)\e[0m\n\n"
     echo "Selamat datang di Webserver Android" | tr '[:lower:]' '[:upper:]' > tmp/banner.txt
 
     echo -ne "\e[32;m$(cat tmp/banner.txt)\e[0m\n\n"

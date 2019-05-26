@@ -49,7 +49,7 @@ __ln()
 
 formTargetLN()
 {
-    echo -e "\n\e[32;m>\e[0m Masukan direktori target contoh: ~/storage/shared/www"
+    echo -e "\n\e[32;m>\e[0m Masukan direktori target contoh: /sdcard/www"
     read -p "Direktori target: " TARGET
 
     progress "[Cek direktori]" 10
@@ -59,12 +59,13 @@ formTargetLN()
 
 formCheckTargetLN()
 {
-    if [ ! -z ${1} ]; then
-        # Cek apakah direktori source ada
-        if ! [ -d ${1} ]; then
-            formSymbolic ${1}
+    if [ ! -z "${1}" ]; then
+        # Cek apakah direktori target ada
+        if [ -d "${1}" ]; then
+	    echo -ne "\e[32;m[√] Direktori ${1} ditemukan.\e[0m\n\n"
+            formSymbolic "${1}"
         else
-            echo -e "\e[31;mDirektori ${1} tidak dapat ditemukan.\e[0m"
+            echo -e "\e[31;m[x] Direktori ${1} tidak dapat ditemukan.\e[0m"
         fi
     else
         echo -e "\e[31;mMaaf, Anda tidak memasukkan direktori source.\e[0m"
@@ -88,14 +89,14 @@ formCheckSymbolic()
 	LINK_NAME=${2}
 	# Cek symbolic jika sudah ada
     	if [ -h "${LINK_NAME}/www" ]; then
-        	echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
+        	echo -e "\e[31;m[!] Symbolic link sudah ada.\e[0m"
         	lamppScriptQuestion
     	else
-		if [ $(ln -s $TARGET $LINK_NAME) ]; then
-        		echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
-        		lamppScriptQuestion
+		if [[ "$(ln -sv ${TARGET} ${LINK_NAME})" ]]; then
+		   echo -e "\e[32;m[√] Sukses membuat symbolic link.\e[0m"
+		   lamppScriptQuestion
 		else
-			echo "Failed"
+		   echo -e "\e[31;m[x] Gagal membuat symbolic link"
 		fi
     	fi
 }
