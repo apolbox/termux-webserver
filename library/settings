@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/bash
 #
 # Installation Webserver
 #
@@ -43,28 +43,28 @@ __ln()
 {
     while true;
     do
-        formSourceLN
+        formTargetLN
     done
 }
 
-formSourceLN()
+formTargetLN()
 {
-    echo -e "\n\e[32;m>\e[0m Masukan direktori source contoh: ~/storage/shared/www"
-    read -p "Source folder: " source
+    echo -e "\n\e[32;m>\e[0m Masukan direktori target contoh: ~/storage/shared/www"
+    read -p "Direktori target: " TARGET
 
     progress "[Cek direktori]" 10
 
-    formCheckSourceLN ${source}
+    formCheckTargetLN ${TARGET}
 }
 
-formCheckSourceLN()
+formCheckTargetLN()
 {
-    if [ ! -z ${source} ]; then
+    if [ ! -z ${1} ]; then
         # Cek apakah direktori source ada
-        if ! [ -d ${source} ]; then
-            formSymbolic ${source}
+        if ! [ -d ${1} ]; then
+            formSymbolic ${1}
         else
-            echo -e "\e[31;mDirektori ${source} tidak dapat ditemukan.\e[0m"
+            echo -e "\e[31;mDirektori ${1} tidak dapat ditemukan.\e[0m"
         fi
     else
         echo -e "\e[31;mMaaf, Anda tidak memasukkan direktori source.\e[0m"
@@ -73,37 +73,31 @@ formCheckSourceLN()
 
 formSymbolic()
 {
+    TARGET=${1}
     echo -e "\e[32;m>\e[0m Masukan direktori symbolic link contoh: /data/data/com.termux/files/usr/var"
-    read -p "Symbolic folder: " target
+    read -p "Direktori link: " LINK_NAME
 
     progress "[Cek symbolic link]" 10
 
-    formCheckSymbolic ${source} ${target}
+    formCheckSymbolic ${TARGET} ${LINK_NAME}
 }
 
 formCheckSymbolic()
 {
-    # Cek symbolic jika sudah ada
-    if [ -h ${target}/www ]; then
-        echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
-        lamppScriptQuestion
-    else
-        if [ -f ~/createlink ]; then
-            rm ~/createlink
-            wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
-            chmod +x ~/createlink
-            cp ~/createlink /data/data/com.termux/files/usr/bin/
-            createlink $source $target
-        else
-            wget -P ~/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/createlink
-            chmod +x ~/createlink
-            cp ~/createlink /data/data/com.termux/files/usr/bin/
-            createlink $source $target
-        fi
-
-        #echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
-        lamppScriptQuestion
-    fi
+	TARGET=${1}
+	LINK_NAME=${2}
+	# Cek symbolic jika sudah ada
+    	if [ -h "${LINK_NAME}/www" ]; then
+        	echo -e "\e[31;mSymbolic link sudah ada.\e[0m"
+        	lamppScriptQuestion
+    	else
+		if [ $(ln -s $TARGET $LINK_NAME) ]; then
+        		echo -e "\e[32;mBerhasil membuat symbolic link.\e[0m"
+        		lamppScriptQuestion
+		else
+			echo "Failed"
+		fi
+    	fi
 }
 
 progress()

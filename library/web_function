@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/bash
 #
 # Installation Webserver
 #
@@ -15,7 +15,8 @@ welcome()
     cat docs/selamat-datang.txt;
 }
 
-__init()
+# Fungsi untuk menjalankan instalasi webserver
+INSTALL_WEB_SERVER()
 {
     welcome;
 
@@ -24,23 +25,24 @@ __init()
     paketWebServer;
 }
 
+# Fungsi paket webserver
 paketWebServer()
 {
     # Tampilkan daftar paket
     daftarPaket
 
     # Install paket yang diinginkan
-    for i in ${!paket[@]}
+    for i in ${!DAFTAR_PAKET_WEB[@]}
     do
-        cekPaket ${paket[$i]}
+        cekPaket ${DAFTAR_PAKET_WEB[$i]}
 
         [ $? -eq 0 ] || {
-            echo -ne "\nPaket \e[31;m[${paket[$i]}]\e[0m belum terinstall, Apakah Anda ingin menginstall? ";
+            echo -ne "\nPaket \e[31;m[${DAFTAR_PAKET_WEB[$i]}]\e[0m belum terinstall, Apakah Anda ingin menginstall? ";
             read -p "[Y/N] (Tekan enter untuk batal) " jawaban
 
             case ${jawaban} in
                 "Y"|"y")
-                    apt install ${paket[$i]} -y
+                    apt install ${DAFTAR_PAKET_WEB[$i]} -y
                     echo -ne "\n"
                     daftarPaket
                     ;;
@@ -85,15 +87,15 @@ daftarPaket()
 
     echo -ne "\n"
 
-    for index in ${!paket[@]}; do
-        cekPaket ${paket[$index]}
+    for index in ${!DAFTAR_PAKET_WEB[@]}; do
+        cekPaket ${DAFTAR_PAKET_WEB[$index]}
 
         if [ $? -eq 0 ]; then
             echo -ne "| "
-            echo -ne "\e[32;m[√]\e[0m\n${paket[$index]}\nTerinstall\n" > tmp/paket_installed.txt;
+            echo -ne "\e[32;m[√]\e[0m\n${DAFTAR_PAKET_WEB[$index]}\nTerinstall\n" > tmp/paket_installed.txt;
             cat tmp/paket_installed.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
         else
-            echo -e "\e[31;m[x]\e[0m\n${paket[$index]}\nBelum terinstall" > tmp/paket_uninstalled.txt;
+            echo -e "\e[31;m[x]\e[0m\n${DAFTAR_PAKET_WEB[$index]}\nBelum terinstall" > tmp/paket_uninstalled.txt;
             cat tmp/paket_uninstalled.txt | tr '\n' ',' | sed 's/,/\t,|,,/g' | column -s ',' -t;
         fi
     done
@@ -124,8 +126,8 @@ progress()
 
 settings()
 {
-    chmod +x library/settings
     cp library/settings /data/data/com.termux/files/usr/bin/lampp-settings
+    chmod +x /data/data/com.termux/files/usr/bin/lampp-settings
     echo -ne "\n"
 
     echo -ne "\n\e[32;mPengaturan tambahan untuk webserver.\e[0m\n\n";
@@ -159,4 +161,9 @@ settings()
                 ;;
         esac
     fi
+}
+
+web_function_test()
+{
+	echo "Ya web fungsi berfungsi"
 }
