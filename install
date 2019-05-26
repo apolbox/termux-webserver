@@ -1,16 +1,28 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/bash
 #
 # Installation Webserver
 #
 # @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
 # @lisence GPL
 #
-source library/func
+export WEB_SERVER_DIR=$(pwd)
 
-# Daftar paket
-paket=($(cat daftar-paket.txt | tr '\n' ' '));
+# Memanggil web fungsi
+if [ -f "${WEB_SERVER_DIR}/library/web_function" ]; then
+	source "${WEB_SERVER_DIR}/library/web_function"
+else
+	echo -ne "\nError: File ${WEB_SERVER_DIR}/library/web_function tidak ada.\n"
+	exit 1
+fi
+
+# Hanya untuk mengetest
+# web_function_test
+
+# Daftar paket instalasi web
+DAFTAR_PAKET_WEB=($(cat daftar-paket.txt | tr '\n' ' '));
 
 # Mengatur penyimpanan
 termux-setup-storage
 
-__init
+# Menjalankan program
+INSTALL_WEB_SERVER
