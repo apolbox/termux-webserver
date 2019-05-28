@@ -3,7 +3,7 @@
 # Installation Webserver
 #
 # @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
-# @lisence GPL
+# @lisence Apache-2.0
 #
 export WEB_SERVER_DIR=$(pwd)
 
