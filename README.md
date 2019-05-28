@@ -17,6 +17,7 @@ Dan masukan perintah dibawah ini:
 
     $ git clone https://github.com/apolbox/termux-webserver.git
     $ cd termux-webserver
+    $ chmod +x ./install
     $ ./install
 
 Tunggu sampai selesai dan untuk menjalankan webserver ketikan perintah berikut:
