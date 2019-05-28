@@ -29,6 +29,20 @@ INSTALL_WEB_SERVER()
 # Fungsi paket webserver
 paketWebServer()
 {
+    # Menyalin public_html dan www ke INTERNAL_STORAGE
+    cp -rf $WEB_SERVER_DIR/www ~/storage/shared/
+    cp -rf $WEB_SERVER_DIR/public_html ~/storage/shared/
+
+    # Membuat folder tmp di direktori $HOME
+    [ -d "$HOME/tmp" ] || {
+        cp -rf $WEB_SERVER_DIR/tmp $HOME
+    }
+
+    # Menyalin lampp-db script ke /data/data/com.termux/files/usr/bin
+    cp -rf $WEB_SERVER_DIR/lampp-db /data/data/com.termux/files/usr/bin/
+    # Mengubah permission lampp-db
+    chmod +x /data/data/com.termux/files/usr/bin/lampp-db
+
     # Tampilkan daftar paket
     daftarPaket
 
