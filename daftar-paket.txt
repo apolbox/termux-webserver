@@ -1,7 +1,2 @@
 lighttpd
 php
-mariadb
-wget
-curl
-git
-nano
