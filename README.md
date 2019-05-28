@@ -21,7 +21,15 @@ Dan masukan perintah dibawah ini:
 
 Tunggu sampai selesai dan untuk menjalankan webserver ketikan perintah berikut:
 
-    $ lampp [start|stop] [-v version]
+    $ lampp [option]
+
+Untuk menggunakan database silahkan ikuti perintah dibawah ini:
+    
+    $ lampp-db install
+
+Tunggu sampai proses instalasi selesai, untuk menjalankan gunakan perintah berikut:
+
+    $ lampp-db [option]
 
 Untuk menguninstall webserver masukan perintah berikut:
 
@@ -29,7 +37,11 @@ Untuk menguninstall webserver masukan perintah berikut:
 
 # Fitur yang akan datang
 
-* phpMyAdmin
+* phpMyAdmin (unrelease)
+* mariadb (release)
+
+# Fitur yang telah ditambahkan
+
 * mariadb
 
 # Kontak kami

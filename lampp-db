@@ -1,0 +1,94 @@
+#!/usr/bin/bash
+#
+# Install mariadb
+#
+PAKET_DATABASE="mariadb" || "mysql";
+
+checkDB()
+{
+    # Cek paket database jija sudah ada
+    progress "Cek paket database" 3
+
+    if ! [ command -v $PAKET_DATABASE >/dev/null 2>&1 ]; then
+        echo -e "\e[32;mPaket $PAKET_DATABASE sudah terinstall.\e[0m\n"
+        # Menjalankan database
+        startDB
+    else
+        echo -e "\e[32;mPaket $PAKET_DATABASE belum terinstall.\e[0m";
+        # Install paket database
+        apt install mariadb -y
+        # Setelah berhasil terinstall, jalankan database
+        startDB
+    fi
+}
+
+startDB()
+{
+    echo -ne "Apakah anda ingin menjalankan database? [y/n] "; read a
+    
+    case ${a} in
+        "Y"|"y")
+            echo "$(mysqld_safe -u root &)" > tmp/db.log.txt
+
+            progress "Menjalankan database" 5
+            echo -ne "\e[32;m[√] Layanan database sedang berjalan.\e[0m\n"
+            ;;
+        "N"|"n"|*)
+            echo -ne "\nGood bye"
+            exit 1
+            ;;
+    esac
+}
+
+stopDB()
+{
+    killall mysqld
+    echo -ne "\e[31;m[x] Layanan database telah berhenti.\e[0m\n"
+}
+
+progress()
+{
+    echo -ne "\n\e[33;m${1}\e[0m ";
+    timeout=0;
+
+    echo -ne "\e[34;m";
+
+    while [ $timeout -lt ${2} ]
+    do
+        timeout=`expr $timeout + 1`
+        echo -ne "${timeout}" | sed 's/[0-9]/./g';
+        sleep 1
+    done
+    echo -ne "\e[0m\n\n";
+}
+
+LAMPP_DB_INSTALLER()
+{
+    PARAM=${1}
+    # Menerima paramerer / argument dan cek jika kosong
+    if [[ ! -z "${PARAM}" ]]; then
+        # Cek parameter
+        case ${PARAM} in
+            "install")
+                checkDB
+                ;;
+            "start")
+                startDB
+                ;;
+            "stop")
+                stopDB
+                ;;
+            *)
+                echo -ne "Invalid parameter\n"
+                echo -ne "Usage: `basename $0` [install] [start|stop]\n"
+                exit 1
+        esac
+    else
+        echo -ne "Parameter kosong.\n"
+        echo -ne "Usage: `basename $0` [install] [start|stop]\n"
+        exit 1
+    fi
+}
+
+# Menjalankan program
+LAMPP_DB_INSTALLER ${1}
