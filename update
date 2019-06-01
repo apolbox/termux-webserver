@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+#
+# Update termux webserver
+#
+source library/autoload
+
+# Cek pembaruan repository
+repository --update
+# Cek phpMyAdmin
+#pmaCheckInstallation true
+#lamppCheckInstallation $(cat version.txt)
