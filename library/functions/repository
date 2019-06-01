@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+#
+# Update && Upgrade repository local
+#
+repository()
+{
+    case ${1} in
+        "--update")
+            progress "[*] Cek pembaruan" 5
+            scanOldFile
+            ;;
+    esac
+}
+
+scanOldFile()
+{
+    for i in $WEB_SERVER_DIR/*
+    do
+        echo -ne "[+] "
+        echo -ne "$i" | cut -f 9 -d '/' | tr -d '\n'
+        if [ $(cat version.txt) == "1.0b" ]; then
+            echo -ne "\e[34;m (versi $(cat version.txt))\e[0m"
+            echo -ne "\e[32;m (upgrade to versi 1.0b)\e[0m\n"
+        else
+            echo -ne "\e[34;m (versi terakhir)\n\e[0m"
+        fi
+        sleep 2
+    done
+
+    echo -ne "\nApakah anda ingin memasang pembaruan? [y/n] "; read j
+    echo $j
+}

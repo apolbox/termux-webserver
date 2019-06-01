@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+#
+# Untuk mengecek versi dari lampp yang terinstall.
+#
+lamppCheckInstallation()
+{
+    echo $1
+}

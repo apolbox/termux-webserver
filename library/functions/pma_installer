@@ -1,0 +1,59 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Installation Webserver
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
+# @lisence Apache-2.0
+#
+pmaCheckInstallation()
+{
+    if [ ${1} ]; then
+        progress "[*] Cek instalasi phpMyAdmin" 5
+        if ! [ -L $PREFIX/opt/phpmyadmin ]; then
+            echo -ne "\e[31;m[x] phpMyAdmin belum terinstall.\e[0m\n\n"
+            echo -ne "Apakah anda ingin menginstall phpMyAdmin? [y/n] "; read j
+            pmaInstallation $j
+        else
+            echo -ne "\e[32;m[√] phpMyAdmin sudah terinstall.\e[0m\n\n"
+        fi
+    fi
+}
+
+pmaInstallation()
+{
+    case ${j} in
+        "Y"|"y")
+            if [ -d $WEB_SERVER_DIR/opt ]; then
+                if [ ! -d /sdcard/Android/data/com.termux/files/opt ]; then
+                    progress "[*] Install phpMyAdmin" 10
+                    cp -rf $WEB_SERVER_DIR/opt /sdcard/Android/data/com.termux/files/
+                    installPMA
+                else
+                    progress "[*] Install phpMyAdmin" 10
+                    installPMA
+                fi
+            else
+                echo "No such file or directory."
+                exit 1
+            fi
+            ;;
+        "N"|"n"|*)
+            echo ""
+            ;;
+    esac
+}
+
+installPMA()
+{
+   TARGET_LINK=/sdcard/Android/data/com.termux/files/opt/phpmyadmin
+   LINK_NAME=$PREFIX/opt
+
+   [ -d $LINK_NAME ] || {
+       mkdir -p $LINK_NAME
+          if [[ "$(ln -sv $TARGET_LINK $LINK_NAME)" ]]; then
+              echo -e "\e[32;m[√] phpMyAdmin sukses diinstall.\e[0m"
+          else
+              echo -e "\e[31;m[x] phpMyAdmin gagal diinstall.\e[0m"
+          fi
+    }
+}

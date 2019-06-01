@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+#
+# Autoload file in library
+#
+WEB_SERVER_DIR=$(pwd)
+
+# Memuat semua file dari library
+listfile=($WEB_SERVER_DIR/library/functions/*)
+
+for i in ${!listfile[@]}
+do
+    source ${listfile[$i]}
+done
+
