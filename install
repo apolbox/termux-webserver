@@ -8,10 +8,10 @@
 export WEB_SERVER_DIR=$(pwd)
 
 # Memanggil web fungsi
-if [ -f "${WEB_SERVER_DIR}/library/web_function" ]; then
-	source "${WEB_SERVER_DIR}/library/web_function"
+if [ -f "${WEB_SERVER_DIR}/library/autoload" ]; then
+	source "${WEB_SERVER_DIR}/library/autoload"
 else
-	echo -ne "\nError: File ${WEB_SERVER_DIR}/library/web_function tidak ada.\n"
+	echo -ne "\nError: File ${WEB_SERVER_DIR}/library/autoload tidak ada.\n"
 	exit 1
 fi
 
