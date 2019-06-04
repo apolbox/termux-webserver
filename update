@@ -2,10 +2,89 @@
 #
 # Update termux webserver
 #
+if ! [ -f tmp/version.txt ]; then
+    version="$(curl -s tmp/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/version.txt > tmp/version.txt)"
+fi
+
+# Alamat untuk pengunduhan file dari server
+library="https://raw.githubusercontent.com/apolbox/termux-webserver/dev"
+
+# Daftar file yang akan diunduh dari server
+keywords=(
+    library/autoload 
+    library/functions/core 
+    library/functions/lampp_updater 
+    library/functions/pma_installer 
+    library/functions/repository 
+    library/functions/settings
+)
+
+# Pengolahan unduhan dan pengecekan file local
+# dengan file yang berada diserver.
+for i in ${!keywords[@]}
+do
+    echo "${keywords[$i]}" > tmp/library.txt
+    # Jika file belum ada refresh library untuk
+    # mengganti file dengan file yang baru.
+    if ! [ -f $(cat tmp/library.txt) ]; then
+        rm -rf library/*
+
+        # Seleksi direktori hanya library/functions yang terbaca
+        if [ $(cat tmp/library.txt | grep "library/functions") ]; then
+            # Membuat sebuah variabel direktori library/functions
+            libfunc="$(cat tmp/library.txt | cut -d '/' -f 1,2)"
+
+            # Jika sudah ada file didirektori library/functions
+            # dan isi filenya adalah sama maka tidak ada tindakan apapun
+            # atau cukup melanjutkan perintah berikutnya.
+            if [ -f $(cat tmp/library.txt) ]; then
+                continue
+            else
+                # Jika ternyata isi direktori library/functions tidak ada
+                # dan tidak sama, unduh file tersebut dari server
+                # dan memasukkan file dari server ke direktori library/functions
+                wget -P $libfunc/ ${library}/${keywords[$i]}
+
+                # Setelah selesai mengunduh lanjutkan perintah berikutnya.
+                continue
+            fi
+        # Seleksi direktori hanya library
+        elif [ $(cat tmp/library.txt | grep "library") ]; then
+            # Membuat sebuah variabel direktori library
+            libdir="$(cat tmp/library.txt | cut -d '/' -f 1)"
+
+            # Jika file didirektori library sudah ada dan
+            # filenya sama dengan server, lanjutkan perintah berikutnya.
+            if [ -f $(cat tmp/library.txt) ]; then
+                continue
+            else
+                # Jika file belum ada lakukan pengunduhan file dari server.
+                wget -P $libdir/ ${library}/${keywords[$i]}
+            fi
+        fi
+    else
+        # Lanjutkan perintah berikutnya jika file dilibrary sudah ada
+        # dan isi filenya sama dengan file yang diserver.
+        continue
+    fi
+done
+
+# Menghapus temperor file unduhan
+rm -rf tmp/library.txt
+
+# Memuat library untuk melakukan pengecekan pembaruan
+# dari versi termux webserver yang terinstall dan
+# termux yang telah rilis terbaru dari server.
 source library/autoload
 
+SLEEP_DURATION=.01
+export SLEEP_DURATION
+
 # Cek pembaruan repository
+# Lakukan pembaruan repository lokal dengan repository dari server
+# yang telah rilis terbaru
 repository --update
+
 # Cek phpMyAdmin
 #pmaCheckInstallation true
 #lamppCheckInstallation $(cat version.txt)
