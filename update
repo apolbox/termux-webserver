@@ -73,6 +73,9 @@ done
 # Menghapus temperor file unduhan
 rm -rf tmp/library.txt
 
+# Download repository
+wget -P tmp/ https://raw.githubusercontent.com/apolbox/termux-webserver/dev/repository.zip
+
 # Memuat library untuk melakukan pengecekan pembaruan
 # dari versi termux webserver yang terinstall dan
 # termux yang telah rilis terbaru dari server.
