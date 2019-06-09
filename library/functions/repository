@@ -4,10 +4,27 @@
 #
 repository()
 {
+    local global_version
+    local latest_version
+
+    $(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/version.txt --output $WEB_SERVER_DIR/tmp/global_version.txt);
+    $(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/master/version.txt --output $WEB_SERVER_DIR/tmp/master_version.txt);
+
+    global_version=$(cat $WEB_SERVER_DIR/tmp/global_version.txt);
+    latest_version=$(cat $WEB_SERVER_DIR/tmp/master_version.txt);
+
+    repository_update()
+    {
+        for i in $WEB_SERVER_DIR/*
+        do
+            echo $i
+        done
+    }
+
     case ${1} in
         "--update")
-            progress "[*] Cek pembaruan" 5
-            scanOldFile
+            progress "[*] Mengecek pembaruan" 5
+            repository_update;
             ;;
     esac
 }

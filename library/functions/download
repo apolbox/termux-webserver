@@ -2,7 +2,7 @@
 #
 # Downloading
 #
-URL_DOWNLOAD = ${URL_DOWNLOAD:=1}
+URL_DOWNLOAD=${URL_DOWNLOAD:=1}
 
 start_download()
 {
