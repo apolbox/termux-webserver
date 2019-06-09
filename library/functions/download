@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+#
+# Downloading
+#
+URL_DOWNLOAD = ${URL_DOWNLOAD:=1}
+
+start_download()
+{
+    ref=$(cat $WEB_SERVER_DIR/tmp/version.txt)
+    url=${URL_DOWNLOAD}${ref}
+
+    $(php $WEB_SERVER_DIR/repository/download/index.php $url)
+}
