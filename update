@@ -17,6 +17,7 @@ keywords=(
     library/functions/pma_installer 
     library/functions/repository 
     library/functions/settings
+    library/functions/download
 )
 
 # Pengolahan unduhan dan pengecekan file local
@@ -83,6 +84,12 @@ export SLEEP_DURATION
 # Cek pembaruan repository
 # Lakukan pembaruan repository lokal dengan repository dari server
 # yang telah rilis terbaru
+#URL_DOWNLOAD="https://api.github.com/repos/apolbox/termux-webserver/git/trees/b79dd00545b086adef5fefd4bb601cc21850ca32"
+#URL_DOWNLOAD="https://codeload.github.com/apolbox/termux-webserver/legacy.zip/v1.1"
+
+URL_DOWNLOAD="https://api.github.com/repos/apolbox/termux-webserver/zipball/"
+export URL_DOWNLOAD
+
 repository --update
 
 # Cek phpMyAdmin
