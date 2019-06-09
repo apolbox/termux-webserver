@@ -1,0 +1,7 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^6.3",
+        "guiguiboy/php-cli-progress-bar": "^0.0.4",
+        "dariuszp/cli-progress-bar": "^1.0"
+    }
+}

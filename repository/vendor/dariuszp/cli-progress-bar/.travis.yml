@@ -1,0 +1,6 @@
+language: php
+php:
+  - 7.2
+
+install:
+  - composer --prefer-source install;
