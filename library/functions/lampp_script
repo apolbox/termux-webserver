@@ -1,0 +1,59 @@
+#!/usr/bin/bash
+# Fungsi untuk menjalankan webserver
+# 
+# @author Ayus Irfang Filaras
+# @license Apache-2.0
+#
+LAMPP_PARAMETER=${LAMPP_PARAMETER:=${1}}
+
+lampp()
+{
+    local version
+    local fileconfig
+    local hostname
+    local port
+    
+    fileconfig=/data/data/com.termux/files/usr/var/etc/config/lighttpd.conf
+    hostname=$(cat $fileconfig | grep 'server.bind' | cut -f 2 -d '"')
+    port=$(cat $fileconfig | grep 'server.port' | cut -f 3 -d ' ')
+   
+    # Mengecek versi dari lampp yang terinstall.
+    # /data/data/com.termux/files/usr/etc/lampp/version.txt atau $PREFIX/etc/lampp/version.txt
+    version_installed() { version=$(cat $WEB_SERVER_DIR/version.txt); }
+    lampp_command() {
+        case ${LAMPP_PARAMETER} in
+            "start")
+                lighttpd -f $fileConfig
+                echo -e "\e[32;mWebserver berjalan di http://${hostnam}e:${port}/\n\e[0m"
+                ;;
+
+            "stop")
+                echo -e "\e[32;mMenghentikan webserver yang berjalan di http://${hostname}:${port}/\e[0m\n";
+                killall lighttpd
+                ;;
+    
+            "--help")
+                echo -e "usage: `basename ${0}` [start|stop] [-v version] [--help help]\n"
+                ;; 
+
+    #"--edit-config")
+    #    echo "${2}" > tmp/edit-config.txt | sed -i 's=/=\\/=g' tmp/edit-config.txt;
+    #    x=$(cat tmp/edit-config.txt | awk '{print $1}')
+    #    y=$(cat ${fileConfig} | tr '\n' '\r' | awk '{print $1}')
+    #    echo "server.document-root=" | sed -i "s|${y}|\"${x}\"|g" ${fileConfig}
+    #
+    #   echo -e "\e[32;m[√] File konfigurasi berhasil diperbarui.\e[0m"
+    #   ;;
+
+            "-v")
+                echo -e "\e[32;mLampp version \e[31;m${version}\e[0m\e[0m"
+                ;;
+
+            *)
+                echo "usage: `basename ${0}` [start|stop] [-v version] [--help help]\n" 
+                exit 1 # Command to come out of the program with status 1;;
+        esac
+    }
+    
+    version_installed; lampp_command;
+}

@@ -50,10 +50,10 @@ installPMA()
 
    [ -d $LINK_NAME ] || {
        mkdir -p $LINK_NAME
-          if [[ "$(ln -sv $TARGET_LINK $LINK_NAME)" ]]; then
-              echo -e "\e[32;m[√] phpMyAdmin sukses diinstall.\e[0m"
-          else
-              echo -e "\e[31;m[x] phpMyAdmin gagal diinstall.\e[0m"
-          fi
-    }
+       if [[ "$(ln -sv $TARGET_LINK $LINK_NAME)" ]]; then
+          echo -e "\e[32;m[√] phpMyAdmin sukses diinstall.\e[0m"
+       else
+          echo -e "\e[31;m[x] phpMyAdmin gagal diinstall.\e[0m"
+       fi
+   }
 }
