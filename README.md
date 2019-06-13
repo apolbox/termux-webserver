@@ -8,10 +8,10 @@ Bagi yang ingin install webserver di android
 2. Internet
 
 # Panduan:
-Buka aplikasi termux terlebih dahulu, setelah itu install paket git.
-Untuk menginstal paket git gunakan perintah dibawah ini:
+Buka aplikasi termux terlebih dahulu, setelah itu install paket yang dibutuhkan.
+Untuk menginstal paket yang dibutuhkan gunakan perintah dibawah ini:
 
-    $ apt install git
+    $ apt install git figlet toilet curl wget -y
 
 Dan masukan perintah dibawah ini:
 
@@ -38,12 +38,19 @@ Untuk menguninstall webserver masukan perintah berikut:
 
 # Fitur yang akan datang
 
-* phpMyAdmin (unrelease)
+* phpMyAdmin (release)
 * mariadb (release)
 
 # Fitur yang telah ditambahkan
 
 * mariadb
+* phpMyAdmin
+
+# Update lampp server
+Untuk melakukan update lampp server gunakan perintah berikut:
+    $ curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/update > ./update
+    $ chmod +x ./update
+    $ ./update
 
 # Kontak kami
 
