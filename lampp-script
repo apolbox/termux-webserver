@@ -4,6 +4,6 @@
 # @author Ayus Irfang Filaras
 # @license Apache-2.0
 #
-source $PREFIX/etc/lampp/library/autoload
+source $PREFIX/etc/lampp/library/autoload.prefix
 
 lampp ${1}
