@@ -28,15 +28,15 @@ lampp()
     # /data/data/com.termux/files/usr/etc/lampp/version.txt atau $PREFIX/etc/lampp/version.txt
     latest_version() { latest_version=$(cat $PREFIX/etc/lampp/version.txt); }
     global_version() {
-        $(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/version.txt --output $WEB_SERVER_DIR/tmp/global_version.txt);
-        global_version=$(cat $WEB_SERVER_DIR/tmp/global_version.txt);
+        $(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/version.txt --output $PREFIX/etc/lampp/global_version.txt);
+        global_version=$(cat $PREFIX/etc/lampp/global_version.txt);
     }
     
     # Menjalankan perintah upgrade
     lampp_upgrade()
     {
         cp -rf $WEB_SERVER_DIR/library $PREFIX/etc/lampp/
-        cp -f $WEB_SERVER_DIR/tmp/global_version.txt $PREFIX/etc/lampp/version.txt
+        cp -f $PREFIX/etc/lampp/global_version.txt $PREFIX/etc/lampp/version.txt
         cp -f $WEB_SERVER_DIR/lampp-script $PREFIX/bin/lampp
         chmod +x $PREFIX/bin/lampp
         sleep 1
@@ -54,6 +54,7 @@ lampp()
                 lampp_upgrade;
             fi
         else
+            echo -ne "\e[32;m[√] Versi lampp sudah yang terbaru.\e[0m\n"
             sleep 1
         fi
     }
