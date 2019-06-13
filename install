@@ -5,16 +5,16 @@
 # @author Ayus Irfang Filaras <ayus.sahabat@gmail.com
 # @lisence Apache-2.0
 #
-export WEB_SERVER_DIR=$(pwd)
+source ./library/autoload
 
+#export WEB_SERVER_DIR=$(pwd)
 # Memanggil web fungsi
-if [ -f "${WEB_SERVER_DIR}/library/autoload" ]; then
-	source "${WEB_SERVER_DIR}/library/autoload"
-else
-	echo -ne "\nError: File ${WEB_SERVER_DIR}/library/autoload tidak ada.\n"
-	exit 1
-fi
-
+#if [ -f "${WEB_SERVER_DIR}/library/core" ]; then
+#	source "${WEB_SERVER_DIR}/library/core"
+#else
+#	echo -ne "\nError: File ${WEB_SERVER_DIR}/library/core tidak ada.\n"
+#	exit 1
+#fi
 # Hanya untuk mengetest
 # web_function_test
 
