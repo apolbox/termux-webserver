@@ -94,7 +94,7 @@ lampp()
                 ;;
 
             *)
-                echo "usage: `basename ${0}` [start|stop] [-v version] [--help help]\n" 
+                echo "usage: `basename ${0}` [start|stop] [-v|--version version] [-h|--help help] [--update]\n" 
                 exit 1 # Command to come out of the program with status 1;;
         esac
     }
