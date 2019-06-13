@@ -19,14 +19,25 @@ repository()
             "Y"|"y")
                 progress "[*] Memasang pembaruan" 5
                 unzip -o $WEB_SERVER_DIR/repository/tmp/${global_version}.zip -d $WEB_SERVER_DIR
+                clear
                 
+                progress "[*] Membersihkan sampah" 5
                 rm -rf $WEB_SERVER_DIR/repository
-                rm -rf $WEB_SERVER_DIR/tmp/repository.zip
+                rm -f $WEB_SERVER_DIR/tmp/repository.zip
+                if [ -d $WEB_SERVER_DIR/repository ] && [ -f $WEB_SERVER_DIR/tmp/repository.zip ]; then
+                    rm -rf $WEB_SERVER_DIR/repository
+                    rm -f $WEB_SERVER_DIR/tmp/repository.zip
+                else
+                    sleep 1
+                    echo -ne "\e[32;m[√] Sukses membersihkan sampah.\e[0m"
+                fi
                 
+                progress "[*] Mengoptimalkan versi lampp" 5
                 mkdir -p $PREFIX/etc/lampp
                 cp -rf $WEB_SERVER_DIR/library $PREFIX/etc/lampp/
                 cp -f $WEB_SERVER_DIR/version.txt $PREFIX/etc/lampp/
-                
+                cp -f $WEB_SERVER_DIR/lampp-script $PREFIX/bin/lampp
+                chmod +x $PREFIX/bin/lampp
                 echo -ne "\e[32;m[√] Pembaruan berhasil.\e[0m\n"
                 ;;
             "N"|"n"|*)
