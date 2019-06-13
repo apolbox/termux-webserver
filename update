@@ -59,5 +59,4 @@ export URL_DOWNLOAD
 repository --update
 
 # Cek phpMyAdmin
-#pmaCheckInstallation true
-#lamppCheckInstallation $(cat version.txt)
+pmaCheckInstallation true
