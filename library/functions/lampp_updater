@@ -19,8 +19,8 @@ lampp()
     local fileconfig
     local hostname
     local port
-    
-    fileconfig=/data/data/com.termux/files/usr/var/etc/config/lighttpd.conf
+
+    fileconfig=/data/data/com.termux/files/usr/var/etc/config/lighttpd.conf;
     hostname=$(cat $fileconfig | grep 'server.bind' | cut -f 2 -d '"')
     port=$(cat $fileconfig | grep 'server.port' | cut -f 3 -d ' ')
    
@@ -64,13 +64,13 @@ lampp()
     {
         case ${LAMPP_PARAMETER} in
             "start")
-                lighttpd -f $fileConfig
-                echo -e "\e[32;mWebserver berjalan di http://${hostnam}e:${port}/\n\e[0m"
+                $(lighttpd -f $fileconfig)
+                echo -e "\e[32;mWebserver berjalan di http://${hostname}:${port}/\n\e[0m"
                 ;;
 
             "stop")
                 echo -e "\e[32;mMenghentikan webserver yang berjalan di http://${hostname}:${port}/\e[0m\n";
-                killall lighttpd
+                $(killall lighttpd)
                 ;;
     
             "--help"|"-h")
