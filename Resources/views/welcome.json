@@ -1,5 +1,5 @@
 {
-    "access_token": "Classes\AccessToken",
+    "access_token": "Classes\\AccessToken",
     "main": {
         "header": {
             "meta": {
