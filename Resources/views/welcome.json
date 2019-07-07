@@ -1,0 +1,37 @@
+{
+    "access_token": "Classes\AccessToken",
+    "main": {
+        "header": {
+            "meta": {
+                "charset": "utf-8",
+                "viewport": "device-width,scale=1,scalable=no"
+            },
+            "link": {
+                "name": "stylesheet",
+                "href": "public_html/css/master.css"
+            },
+            "script": {
+                "name": "javascript",
+                "href": "public_html/js/master.js"
+            }
+        },
+        "body": {
+            "nav": {
+                "background": "default",
+                "position": "default",
+                "container": "normal",
+                "logo": {
+                    "with_link": "Sample app"
+                },
+                "list-main": {
+                    "with_link": "About",
+                    "with_link": "Beranda"
+                }
+            },
+            "welcome": {
+                "position": "center",
+                "body": "Selamat datang"
+            }
+        }
+    }
+}
