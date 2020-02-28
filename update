@@ -16,17 +16,17 @@ list=(
     library/functions/download
 )
 
+rm -rf library/*
+
 # Pengolahan unduhan dan pengecekan file local
 # dengan file yang berada diserver.
 for i in ${!list[@]}
 do
-    if ! [ -f ${list[$i]} ]; then
-        rm -rf ${list[$i]}
-        
-        curl -s ${lib}/${list[$i]} --output ${list[$i]}
-    else
-        continue
+    if ! [ -d "library/functions" ]; then
+        mkdir library/functions
     fi
+    
+    echo -e "\e[32;m[+] Mengunduh ${list[$i]} $(curl -# ${lib}/${list[$i]} --output ${list[$i]})\e[0m"
 done
 
 # Download repository
