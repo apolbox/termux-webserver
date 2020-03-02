@@ -17,6 +17,8 @@ Dan masukan perintah dibawah ini:
 
     $ git clone https://github.com/apolbox/termux-webserver.git
     $ cd termux-webserver
+    $ chmod +x lampp-script
+    $ chmod +x lampp-db
     $ chmod +x ./install
     $ ./install
 
