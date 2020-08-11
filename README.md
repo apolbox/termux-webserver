@@ -50,7 +50,7 @@ Untuk menguninstall webserver masukan perintah berikut:
 
 Untuk melakukan update lampp server gunakan perintah berikut:
 
-    $ curl -s https://raw.githubusercontent.com/wadahkode/termux-webserver/dev/update > ./update
+    $ curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/update > ./update
     $ chmod +x ./update
     $ ./update
 
