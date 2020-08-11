@@ -53,7 +53,7 @@ export SLEEP_DURATION
 #URL_DOWNLOAD="https://api.github.com/repos/apolbox/termux-webserver/git/trees/b79dd00545b086adef5fefd4bb601cc21850ca32"
 #URL_DOWNLOAD="https://codeload.github.com/apolbox/termux-webserver/legacy.zip/v1.1"
 
-URL_DOWNLOAD="https://api.github.com/repos/apolbox/termux-webserver/zipball/"
+URL_DOWNLOAD="https://api.github.com/repos/wadahkode/termux-webserver/zipball/"
 export URL_DOWNLOAD
 
 repository --update
