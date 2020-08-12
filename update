@@ -30,12 +30,13 @@ do
 done
 
 # Download repository
-if ! [ -f tmp/repository.zip ]; then
-    $(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/repository.zip > tmp/repository.zip)
-    
+$(curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/repository.zip > repository.zip)
+if ! [ -d "repository" ]; then
     mkdir -p repository
-    unzip tmp/repository.zip -d ./repository
-    
+    unzip repository.zip -d ./repository
+    clear
+else
+    unzip -f repository.zip -d ./repository
     clear
 fi
 
