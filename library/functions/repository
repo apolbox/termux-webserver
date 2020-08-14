@@ -67,7 +67,7 @@ repository()
                     #php $WEB_SERVER_DIR/repository/download/index.php ${URL_DOWNLOAD}${global_version}
                     #if [[-f $WEB_SERVER_DIR/repository/tmp/${ref}.zip]]; then
                     #    echo -ne "\e[32;mDownload berhasil\e[0m\n";
-                    #    echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
+                    echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
                     repository_upgrade $archive
                     #else
                     #    echo -ne "\e[31;mDownload gagal!\e[0m";
