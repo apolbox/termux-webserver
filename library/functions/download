@@ -7,7 +7,9 @@ URL_DOWNLOAD=${URL_DOWNLOAD:=1}
 start_download()
 {
     ref=$(cat $WEB_SERVER_DIR/tmp/global_version.txt)
-    url=${URL_DOWNLOAD}${ref}
+    url=${URL_DOWNLOAD}${ref}.zip
+    
+    $(curl -sL ${url} > $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
 
     $(php $WEB_SERVER_DIR/repository/download/index.php $url)
 }
