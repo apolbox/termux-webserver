@@ -45,7 +45,7 @@ pmaInstallation()
 
 installPMA()
 {
-   TARGET_LINK=/sdcard/Android/data/com.termux/files/opt/phpmyadmin
+   TARGET_LINK=/sdcard/Android/data/com.termux/files/opt/phpMyAdmin
    LINK_NAME=$PREFIX/opt
 
    [ -d $LINK_NAME ] || {
