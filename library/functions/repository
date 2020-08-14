@@ -65,14 +65,14 @@ repository()
                 if ! [ -f "$WEB_SERVER_DIR/repository/tmp/${ref}.zip" ]; then
                     $(curl -# -L ${url} --output $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
                     #php $WEB_SERVER_DIR/repository/download/index.php ${URL_DOWNLOAD}${global_version}
-                    if [[-f $WEB_SERVER_DIR/repository/tmp/${ref}.zip]]; then
-                        echo -ne "\e[32;mDownload berhasil\e[0m\n";
-                        echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
-                        repository_upgrade $archive
-                    else
-                        echo -ne "\e[31;mDownload gagal!\e[0m";
-                        exit;
-                    fi
+                    #if [[-f $WEB_SERVER_DIR/repository/tmp/${ref}.zip]]; then
+                    #    echo -ne "\e[32;mDownload berhasil\e[0m\n";
+                    #    echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
+                    repository_upgrade $archive
+                    #else
+                    #    echo -ne "\e[31;mDownload gagal!\e[0m";
+                    #    exit;
+                    #fi
                 else
                     echo -ne "\e[32;m[√] File pembaruan sudah ada.\e[0m\n"
                     echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
