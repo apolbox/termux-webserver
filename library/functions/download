@@ -9,7 +9,8 @@ start_download()
     ref=$(cat $WEB_SERVER_DIR/tmp/global_version.txt)
     url=${URL_DOWNLOAD}${ref}.zip
     
-    $(curl -sL ${url} > $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
+    $(curl -sL \
+        -H 'Authorization: token 767553fbd528976d980c681c0be6e702dd78dde8' ${url} --output $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
 
     $(php $WEB_SERVER_DIR/repository/download/index.php $url)
 }
