@@ -49,11 +49,16 @@ repository()
     
     repository_download()
     {
+        ref=$(cat $WEB_SERVER_DIR/tmp/global_version.txt)
+        url=${URL_DOWNLOAD}${ref}.zip
+        
         case ${1} in
             "Y"|"y")
                 progress "[*] Mengunduh pembaruan" 5
-                if ! [ -f "$WEB_SERVER_DIR/repository/tmp/${global_version}.zip" ]; then
-                    php $WEB_SERVER_DIR/repository/download/index.php ${URL_DOWNLOAD}${global_version}
+                if ! [ -f "$WEB_SERVER_DIR/repository/tmp/${ref}.zip" ]; then
+                    $(curl -sL# ${url} --output $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
+                    
+                    #php $WEB_SERVER_DIR/repository/download/index.php ${URL_DOWNLOAD}${global_version}
                     echo -ne "\n[?] Apakah anda ingin memasang pembaruan? [y/n] "; read archive
                     repository_upgrade $archive
                 else
