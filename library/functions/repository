@@ -20,11 +20,11 @@ repository()
                 progress "[*] Memasang pembaruan" 5
                 unzip -o $WEB_SERVER_DIR/repository/tmp/${global_version}.zip -d $WEB_SERVER_DIR
                 
-                if [[-f $WEB_SERVER_DIR/termux-webserver-*]]; then
+                if [ -d $WEB_SERVER_DIR/termux-webserver-* ]; then
                     cp -rf termux-webserver-*/* $WEB_SERVER_DIR
                 fi
                 
-                if [[-f $WEB_SERVER_DIR/apolbox-*]]; then
+                if [ -d $WEB_SERVER_DIR/apolbox-* ]; then
                     cp -rf apolbox-*/* $WEB_SERVER_DIR
                 fi
                 clear
