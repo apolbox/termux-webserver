@@ -10,7 +10,7 @@ start_download()
     url=${URL_DOWNLOAD}${ref}.zip
     
     $(curl -sL \
-        -H 'Authorization: token 767553fbd528976d980c681c0be6e702dd78dde8' ${url} --output $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
+        -H 'Authorization: token e3470b445a20f64c066c96bd330775f0bb4888a4' ${url} --output $WEB_SERVER_DIR/repository/tmp/${ref}.zip)
         
     if [[-f $WEB_SERVER_DIR/repository/tmp/${ref}.zip]]; then
         $(php $WEB_SERVER_DIR/repository/download/index.php $url)
