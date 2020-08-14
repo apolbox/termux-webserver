@@ -80,7 +80,12 @@ class Designer
      */
     private function getPageIdsAndNames($db)
     {
+        $result = [];
         $cfgRelation = $this->relation->getRelationsParam();
+        if (! $cfgRelation['pdfwork']) {
+            return $result;
+        }
+
         $page_query = "SELECT `page_nr`, `page_descr` FROM "
             . Util::backquote($cfgRelation['db']) . "."
             . Util::backquote($cfgRelation['pdf_pages'])
@@ -92,7 +97,6 @@ class Designer
             DatabaseInterface::QUERY_STORE
         );
 
-        $result = [];
         while ($curr_page = $GLOBALS['dbi']->fetchAssoc($page_rs)) {
             $result[intval($curr_page['page_nr'])] = $curr_page['page_descr'];
         }
@@ -137,10 +141,10 @@ class Designer
     /**
      * Returns HTML for including some variable to be accessed by JavaScript
      *
-     * @param array $script_tables        array on foreign key support for each table
-     * @param array $script_contr         initialization data array
-     * @param array $script_display_field display fields of each table
-     * @param int   $display_page         page number of the selected page
+     * @param array                    $script_tables        array on foreign key support for each table
+     * @param array                    $script_contr         initialization data array
+     * @param Designer\DesignerTable[] $script_display_field displayed tables in designer with their display fields
+     * @param int                      $display_page         page number of the selected page
      *
      * @return string html
      */
@@ -150,14 +154,20 @@ class Designer
         array $script_display_field,
         $display_page
     ) {
+        $displayedFields = [];
+        foreach ($script_display_field as $designerTable) {
+            if ($designerTable->getDisplayField() !== null) {
+                $displayedFields[$designerTable->getTableName()] = $designerTable->getDisplayField();
+            }
+        }
         $cfgRelation = $this->relation->getRelationsParam();
         $designerConfig = new \stdClass();
         $designerConfig->db = $_GET['db'];
         $designerConfig->scriptTables = $script_tables;
         $designerConfig->scriptContr = $script_contr;
         $designerConfig->server = $GLOBALS['server'];
-        $designerConfig->scriptDisplayField = $script_display_field;
-        $designerConfig->displayPage = $display_page;
+        $designerConfig->scriptDisplayField = $displayedFields;
+        $designerConfig->displayPage = (int) $display_page;
         $designerConfig->tablesEnabled = $cfgRelation['pdfwork'];
         return Template::get('database/designer/js_fields')->render([
             'designer_config' => json_encode($designerConfig)
@@ -195,12 +205,13 @@ class Designer
 
         $cfgRelation = $this->relation->getRelationsParam();
 
-        if ($GLOBALS['cfgRelation']['designersettingswork']) {
+        if ($cfgRelation['designersettingswork']) {
             $query = 'SELECT `settings_data` FROM '
                 . Util::backquote($cfgRelation['db']) . '.'
                 . Util::backquote($cfgRelation['designer_settings'])
                 . ' WHERE ' . Util::backquote('username') . ' = "'
-                . $GLOBALS['cfg']['Server']['user'] . '";';
+                . $GLOBALS['dbi']->escapeString($GLOBALS['cfg']['Server']['user'])
+                . '";';
 
             $result = $GLOBALS['dbi']->fetchSingleRow($query);
 
@@ -284,36 +295,31 @@ class Designer
     /**
      * Return HTML for the table list
      *
-     * @param array $tab_pos      table positions
-     * @param int   $display_page page number of the selected page
-     *
      * @return string html
      */
-    public function getHtmlTableList(array $tab_pos, $display_page)
+    public function getHtmlTableList()
     {
         return Template::get('database/designer/table_list')->render([
-            'tab_pos' => $tab_pos,
-            'display_page' => $display_page,
             'theme' => $GLOBALS['PMA_Theme'],
-            'table_names' => $GLOBALS['designer']['TABLE_NAME'],
-            'table_names_url' => $GLOBALS['designer_url']['TABLE_NAME'],
-            'table_names_small_url' => $GLOBALS['designer_url']['TABLE_NAME_SMALL'],
-            'table_names_out' => $GLOBALS['designer_out']['TABLE_NAME'],
         ]);
     }
 
     /**
      * Get HTML to display tables on designer page
      *
-     * @param array $tab_pos                  tables positions
-     * @param int   $display_page             page number of the selected page
-     * @param array $tab_column               table column info
-     * @param array $tables_all_keys          all indices
-     * @param array $tables_pk_or_unique_keys unique or primary indices
+     * @param string $db                       The database name from the request
+     * @param array  $designerTables           The designer tables
+     * @param array  $tab_pos                  tables positions
+     * @param int    $display_page             page number of the selected page
+     * @param array  $tab_column               table column info
+     * @param array  $tables_all_keys          all indices
+     * @param array  $tables_pk_or_unique_keys unique or primary indices
      *
      * @return string html
      */
     public function getDatabaseTables(
+        $db,
+        array $designerTables,
         array $tab_pos,
         $display_page,
         array $tab_column,
@@ -322,20 +328,14 @@ class Designer
     ) {
         return Template::get('database/designer/database_tables')->render([
             'db' => $GLOBALS['db'],
-            'get_db' => $_GET['db'],
+            'get_db' => $db,
             'has_query' => isset($_REQUEST['query']),
             'tab_pos' => $tab_pos,
             'display_page' => $display_page,
             'tab_column' => $tab_column,
             'tables_all_keys' => $tables_all_keys,
             'tables_pk_or_unique_keys' => $tables_pk_or_unique_keys,
-            'table_names' => $GLOBALS['designer']['TABLE_NAME'],
-            'table_names_url' => $GLOBALS['designer_url']['TABLE_NAME'],
-            'table_names_small' => $GLOBALS['designer']['TABLE_NAME_SMALL'],
-            'table_names_small_url' => $GLOBALS['designer_url']['TABLE_NAME_SMALL'],
-            'table_names_small_out' => $GLOBALS['designer_out']['TABLE_NAME_SMALL'],
-            'table_types' => $GLOBALS['designer']['TABLE_TYPE'],
-            'owner_out' => $GLOBALS['designer_out']['OWNER'],
+            'tables' => $designerTables,
             'theme' => $GLOBALS['PMA_Theme'],
         ]);
     }

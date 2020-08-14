@@ -214,16 +214,11 @@ class Google2FATest extends TestCase
         $this->google2fa->getCurrentOtp(Constants::INVALID_SECRET);
     }
 
-    /**
-     * AllowInsecureCallToGoogleApis setter.
-     *
-     * @param mixed $allowInsecureCallToGoogleApis
-     *
-     * @return QRCode
-     */
-    public function setAllowInsecureCallToGoogleApis($allowInsecureCallToGoogleApis)
+    public function testQrcodeInline()
     {
-        $this->allowInsecureCallToGoogleApis = $allowInsecureCallToGoogleApis;
-        return $this;
+        $this->assertEquals(
+            phpversion() >= '7.2' ? Constants::QRCODEPHPABOVE72 : Constants::QRCODEPHPBELOW72,
+            $this->google2fa->getQRCodeInline('PragmaRX', 'acr+pragmarx@antoniocarlosribeiro.com', Constants::SECRET)
+        );
     }
 }

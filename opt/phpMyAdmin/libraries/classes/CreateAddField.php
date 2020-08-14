@@ -93,7 +93,7 @@ class CreateAddField
                         : '',
                         isset($_POST['field_null'][$i])
                         ? $_POST['field_null'][$i]
-                        : 'NOT NULL',
+                        : 'NO',
                         $_POST['field_default_type'][$i],
                         $_POST['field_default_value'][$i],
                         isset($_POST['field_extra'][$i])
@@ -147,7 +147,7 @@ class CreateAddField
         if ($previousField == -1) {
             if ((string) $_POST['field_where'] === 'first') {
                 $sqlSuffix .= ' FIRST';
-            } else {
+            } else if (! empty($_POST['after_field'])) {
                 $sqlSuffix .= ' AFTER '
                         . Util::backquote($_POST['after_field']);
             }

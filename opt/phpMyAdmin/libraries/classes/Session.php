@@ -5,7 +5,7 @@
  *
  * @package PhpMyAdmin
  *
- * @see     https://secure.php.net/session
+ * @see     https://www.php.net/manual/en/features.sessions.php
  */
 namespace PhpMyAdmin;
 
@@ -28,7 +28,8 @@ class Session
      */
     private static function generateToken()
     {
-        $_SESSION[' PMA_token '] = Util::generateRandom(16);
+        $_SESSION[' PMA_token '] = Util::generateRandom(16, true);
+        $_SESSION[' HMAC_secret '] = Util::generateRandom(16);
 
         /**
          * Check if token is properly generated (the generation can fail, for example
@@ -174,12 +175,12 @@ class Session
         // proxy servers
         session_cache_limiter('private');
 
-        $session_name = 'phpMyAdmin';
-        @session_name($session_name);
+        $httpCookieName = $config->getCookieName('phpMyAdmin');
+        @session_name($httpCookieName);
 
         // Restore correct sesion ID (it might have been reset by auto started session
-        if (isset($_COOKIE['phpMyAdmin'])) {
-            session_id($_COOKIE['phpMyAdmin']);
+        if ($config->issetCookie('phpMyAdmin')) {
+            session_id($config->getCookie('phpMyAdmin'));
         }
 
         // on first start of session we check for errors
@@ -191,7 +192,7 @@ class Session
         if ($session_result !== true
             || $orig_error_count != $errorHandler->countErrors(false)
         ) {
-            setcookie($session_name, '', 1);
+            setcookie($httpCookieName, '', 1);
             $errors = $errorHandler->sliceErrors($orig_error_count);
             self::sessionFailed($errors);
         }

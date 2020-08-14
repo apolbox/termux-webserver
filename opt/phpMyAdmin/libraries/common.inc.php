@@ -128,7 +128,9 @@ $GLOBALS['PMA_Config'] = new Config(CONFIG_FILE);
 /**
  * include session handling after the globals, to prevent overwriting
  */
-Session::setUp($GLOBALS['PMA_Config'], $GLOBALS['error_handler']);
+if (! defined('PMA_NO_SESSION')) {
+    Session::setUp($GLOBALS['PMA_Config'], $GLOBALS['error_handler']);
+}
 
 /**
  * init some variables LABEL_variables_init
@@ -150,7 +152,8 @@ if (Core::checkPageValidity($_REQUEST['goto'])) {
     $GLOBALS['goto'] = $_REQUEST['goto'];
     $GLOBALS['url_params']['goto'] = $_REQUEST['goto'];
 } else {
-    unset($_REQUEST['goto'], $_GET['goto'], $_POST['goto'], $_COOKIE['goto']);
+    $GLOBALS['PMA_Config']->removeCookie('goto');
+    unset($_REQUEST['goto'], $_GET['goto'], $_POST['goto']);
 }
 
 /**
@@ -160,7 +163,8 @@ if (Core::checkPageValidity($_REQUEST['goto'])) {
 if (Core::checkPageValidity($_REQUEST['back'])) {
     $GLOBALS['back'] = $_REQUEST['back'];
 } else {
-    unset($_REQUEST['back'], $_GET['back'], $_POST['back'], $_COOKIE['back']);
+    $GLOBALS['PMA_Config']->removeCookie('back');
+    unset($_REQUEST['back'], $_GET['back'], $_POST['back']);
 }
 
 /**
@@ -341,8 +345,8 @@ if (! defined('PMA_MINIMUM_COMMON')) {
                 . ' ' . $cfg['Server']['auth_type']
             );
         }
-        if (isset($_REQUEST['pma_password']) && strlen($_REQUEST['pma_password']) > 256) {
-            $_REQUEST['pma_password'] = substr($_REQUEST['pma_password'], 0, 256);
+        if (isset($_POST['pma_password']) && strlen($_POST['pma_password']) > 256) {
+            $_POST['pma_password'] = substr($_POST['pma_password'], 0, 256);
         }
         $auth_plugin = new $auth_class();
 
@@ -454,3 +458,11 @@ $GLOBALS['PMA_Config']->loadUserPreferences();
 
 /* Tell tracker that it can actually work */
 Tracker::enable();
+
+if (! defined('PMA_MINIMUM_COMMON')
+    && ! empty($GLOBALS['server'])
+    && isset($GLOBALS['cfg']['ZeroConf'])
+    && $GLOBALS['cfg']['ZeroConf'] == true
+) {
+    $GLOBALS['dbi']->postConnectControl();
+}

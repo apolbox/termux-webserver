@@ -72,6 +72,9 @@ class ErrorReport
      */
     public function getData($exceptionType = 'js')
     {
+        /** @var Config $PMA_Config */
+        global $PMA_Config;
+
         $relParams = $this->relation->getRelationsParam();
         // common params for both, php & js exceptions
         $report = [
@@ -81,7 +84,7 @@ class ErrorReport
             "user_os" => PMA_USR_OS,
             "server_software" => $_SERVER['SERVER_SOFTWARE'],
             "user_agent_string" => $_SERVER['HTTP_USER_AGENT'],
-            "locale" => $_COOKIE['pma_lang'],
+            "locale" => $PMA_Config->getCookie('pma_lang'),
             "configuration_storage" =>
                 is_null($relParams['db']) ? "disabled" : "enabled",
             "php_version" => phpversion()
@@ -93,14 +96,26 @@ class ErrorReport
             }
             $exception = $_POST['exception'];
             $exception["stack"] = $this->translateStacktrace($exception["stack"]);
-            list($uri, $scriptName) = $this->sanitizeUrl($exception["url"]);
-            $exception["uri"] = $uri;
-            unset($exception["url"]);
+
+            if (isset($exception["url"])) {
+                list($uri, $scriptName) = $this->sanitizeUrl($exception["url"]);
+                $exception["uri"] = $uri;
+                $report["script_name"] = $scriptName;
+                unset($exception["url"]);
+            } else if (isset($_POST["url"])) {
+                list($uri, $scriptName) = $this->sanitizeUrl($_POST["url"]);
+                $exception["uri"] = $uri;
+                $report["script_name"] = $scriptName;
+                unset($_POST["url"]);
+            } else {
+                $report["script_name"] = null;
+            }
 
             $report["exception_type"] = 'js';
             $report["exception"] = $exception;
-            $report["script_name"] = $scriptName;
-            $report["microhistory"] = $_POST['microhistory'];
+            if (isset($_POST['microhistory'])) {
+                $report["microhistory"] = $_POST['microhistory'];
+            }
 
             if (! empty($_POST['description'])) {
                 $report['steps'] = $_POST['description'];
@@ -168,7 +183,7 @@ class ErrorReport
         }
 
         // get script name
-        preg_match("<([a-zA-Z\-_\d]*\.php)$>", $components["path"], $matches);
+        preg_match("<([a-zA-Z\-_\d\.]*\.php|js\/[a-zA-Z\-_\d\/\.]*\.js)$>", $components["path"], $matches);
         if (count($matches) < 2) {
             $scriptName = 'index.php';
         } else {
@@ -196,7 +211,7 @@ class ErrorReport
      *
      * @param array $report the report info to be sent
      *
-     * @return string the reply of the server
+     * @return string|null|bool the reply of the server
      */
     public function send(array $report)
     {
@@ -226,7 +241,6 @@ class ErrorReport
                     $line = mb_substr($line, 0, 75) . "//...";
                 }
             }
-            unset($level["context"]);
             list($uri, $scriptName) = $this->sanitizeUrl($level["url"]);
             $level["uri"] = $uri;
             $level["scriptname"] = $scriptName;

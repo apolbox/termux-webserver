@@ -102,22 +102,42 @@ abstract class Context
         //                 SET @i = 0;
 
         // @see Token::FLAG_OPERATOR_ARITHMETIC
-        '%' => 1, '*' => 1, '+' => 1, '-' => 1, '/' => 1,
+        '%' => 1,
+        '*' => 1,
+        '+' => 1,
+        '-' => 1,
+        '/' => 1,
 
         // @see Token::FLAG_OPERATOR_LOGICAL
-        '!' => 2, '!=' => 2, '&&' => 2, '<' => 2, '<=' => 2,
-        '<=>' => 2, '<>' => 2, '=' => 2, '>' => 2, '>=' => 2,
+        '!' => 2,
+        '!=' => 2,
+        '&&' => 2,
+        '<' => 2,
+        '<=' => 2,
+        '<=>' => 2,
+        '<>' => 2,
+        '=' => 2,
+        '>' => 2,
+        '>=' => 2,
         '||' => 2,
 
         // @see Token::FLAG_OPERATOR_BITWISE
-        '&' => 4, '<<' => 4, '>>' => 4, '^' => 4, '|' => 4,
+        '&' => 4,
+        '<<' => 4,
+        '>>' => 4,
+        '^' => 4,
+        '|' => 4,
         '~' => 4,
 
         // @see Token::FLAG_OPERATOR_ASSIGNMENT
         ':=' => 8,
 
         // @see Token::FLAG_OPERATOR_SQL
-        '(' => 16, ')' => 16, '.' => 16, ',' => 16, ';' => 16,
+        '(' => 16,
+        ')' => 16,
+        '.' => 16,
+        ',' => 16,
+        ';' => 16
     );
 
     /**
@@ -248,17 +268,15 @@ abstract class Context
      * @param string $str        string to be checked
      * @param bool   $isReserved checks if the keyword is reserved
      *
-     * @return int
+     * @return int|null
      */
     public static function isKeyword($str, $isReserved = false)
     {
         $str = strtoupper($str);
 
         if (isset(static::$KEYWORDS[$str])) {
-            if ($isReserved) {
-                if (!(static::$KEYWORDS[$str] & Token::FLAG_KEYWORD_RESERVED)) {
-                    return null;
-                }
+            if ($isReserved && ! (static::$KEYWORDS[$str] & Token::FLAG_KEYWORD_RESERVED)) {
+                return null;
             }
 
             return static::$KEYWORDS[$str];
@@ -275,11 +293,11 @@ abstract class Context
      *
      * @param string $str string to be checked
      *
-     * @return int the appropriate flag for the operator
+     * @return int|null the appropriate flag for the operator
      */
     public static function isOperator($str)
     {
-        if (!isset(static::$OPERATORS[$str])) {
+        if (! isset(static::$OPERATORS[$str])) {
             return null;
         }
 
@@ -310,26 +328,36 @@ abstract class Context
      * @param string $str string to be checked
      * @param mixed  $end
      *
-     * @return int the appropriate flag for the comment type
+     * @return int|null the appropriate flag for the comment type
      */
     public static function isComment($str, $end = false)
     {
         $len = strlen($str);
-        if ($len == 0) {
+        if ($len === 0) {
             return null;
         }
+
+        // If comment is Bash style (#):
         if ($str[0] === '#') {
             return Token::FLAG_COMMENT_BASH;
-        } elseif (($len > 1) && ($str[0] === '/') && ($str[1] === '*')) {
-            return (($len > 2) && ($str[2] == '!')) ?
+        }
+        // If comment is opening C style (/*), warning, it could be a MySQL command (/*!)
+        if (($len > 1) && ($str[0] === '/') && ($str[1] === '*')) {
+            return ($len > 2) && ($str[2] === '!') ?
                 Token::FLAG_COMMENT_MYSQL_CMD : Token::FLAG_COMMENT_C;
-        } elseif (($len > 1) && ($str[0] === '*') && ($str[1] === '/')) {
+        }
+        // If comment is closing C style (*/), warning, it could conflicts with wildcard and a real opening C style.
+        // It would looks like the following valid SQL statement: "SELECT */* comment */ FROM...".
+        if (($len > 1) && ($str[0] === '*') && ($str[1] === '/')) {
             return Token::FLAG_COMMENT_C;
-        } elseif (($len > 2) && ($str[0] === '-')
-            && ($str[1] === '-') && (static::isWhitespace($str[2]))
+        }
+        // If comment is SQL style (--\s?):
+        if (($len > 2) && ($str[0] === '-')
+            && ($str[1] === '-') && static::isWhitespace($str[2])
         ) {
             return Token::FLAG_COMMENT_SQL;
-        } elseif (($len == 2) && $end && ($str[0] === '-') && ($str[1] === '-')) {
+        }
+        if (($len === 2) && $end && ($str[0] === '-') && ($str[1] === '-')) {
             return Token::FLAG_COMMENT_SQL;
         }
 
@@ -380,18 +408,18 @@ abstract class Context
      *
      * @param string $str string to be checked
      *
-     * @return int the appropriate flag for the symbol type
+     * @return int|null the appropriate flag for the symbol type
      */
     public static function isSymbol($str)
     {
-        if (strlen($str) == 0) {
+        if (strlen($str) === 0) {
             return null;
         }
         if ($str[0] === '@') {
             return Token::FLAG_SYMBOL_VARIABLE;
         } elseif ($str[0] === '`') {
             return Token::FLAG_SYMBOL_BACKTICK;
-        } elseif ($str[0] === ':') {
+        } elseif ($str[0] === ':' || $str[0] === '?') {
             return Token::FLAG_SYMBOL_PARAMETER;
         }
 
@@ -406,11 +434,11 @@ abstract class Context
      *
      * @param string $str string to be checked
      *
-     * @return int the appropriate flag for the string type
+     * @return int|null the appropriate flag for the string type
      */
     public static function isString($str)
     {
-        if (strlen($str) == 0) {
+        if (strlen($str) === 0) {
             return null;
         }
         if ($str[0] === '\'') {
@@ -461,7 +489,7 @@ abstract class Context
             // Short context name (must be formatted into class name).
             $context = self::$contextPrefix . $context;
         }
-        if (!class_exists($context)) {
+        if (! class_exists($context)) {
             throw @new LoaderException(
                 'Specified context ("' . $context . '") does not exist.',
                 $context
@@ -482,7 +510,7 @@ abstract class Context
      * @param string $context name of the context or full class name that
      *                        defines the context
      *
-     * @return string The loaded context. `null` if no context was loaded.
+     * @return string|null The loaded context. `null` if no context was loaded.
      */
     public static function loadClosest($context = '')
     {
@@ -537,7 +565,7 @@ abstract class Context
      * @param array|string $str   the string to be escaped
      * @param string       $quote quote to be used when escaping
      *
-     * @return string
+     * @return string|array
      */
     public static function escape($str, $quote = '`')
     {
@@ -550,7 +578,7 @@ abstract class Context
         }
 
         if ((static::$MODE & self::SQL_MODE_NO_ENCLOSING_QUOTES)
-            && (!static::isKeyword($str, true))
+            && (! static::isKeyword($str, true))
         ) {
             return $str;
         }
@@ -560,6 +588,29 @@ abstract class Context
         }
 
         return $quote . str_replace($quote, $quote . $quote, $str) . $quote;
+    }
+
+    /**
+     * Returns char used to quote identifiers based on currently set SQL Mode (ie. standard or ANSI_QUOTES)
+     * @return string either " (double quote, ansi_quotes mode) or ` (backtick, standard mode)
+     */
+    public static function getIdentifierQuote()
+    {
+        return self::hasMode(self::SQL_MODE_ANSI_QUOTES) ? '"' : '`';
+    }
+
+    /**
+     * Function verifies that given SQL Mode constant is currently set
+     *
+     * @return boolean false on empty param, true/false on given constant/int value
+     * @param int $flag for example Context::SQL_MODE_ANSI_QUOTES
+     */
+    public static function hasMode($flag = null)
+    {
+        if (empty($flag)) {
+            return false;
+        }
+        return (self::$MODE & $flag) === $flag;
     }
 }
 

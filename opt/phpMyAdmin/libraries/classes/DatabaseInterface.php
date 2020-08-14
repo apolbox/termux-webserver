@@ -307,7 +307,7 @@ class DatabaseInterface
     public function tryQuery($query, $link = DatabaseInterface::CONNECT_USER, $options = 0,
         $cache_affected_rows = true
     ) {
-        $debug = $GLOBALS['cfg']['DBG']['sql'];
+        $debug = isset($GLOBALS['cfg']['DBG']) ? $GLOBALS['cfg']['DBG']['sql'] : false;
         if (! isset($this->_links[$link])) {
             return false;
         }
@@ -326,13 +326,11 @@ class DatabaseInterface
             $time = microtime(true) - $time;
             $this->_dbgQuery($query, $link, $result, $time);
             if ($GLOBALS['cfg']['DBG']['sqllog']) {
-                if ($options & DatabaseInterface::QUERY_STORE == DatabaseInterface::QUERY_STORE) {
-                    $tmp = $this->_extension->realQuery('
-                        SHOW COUNT(*) WARNINGS', $this->_links[$link], DatabaseInterface::QUERY_STORE
-                    );
-                    $warnings = $this->fetchRow($tmp);
-                } else {
-                    $warnings = 0;
+                $warningsCount = '';
+                if (($options & DatabaseInterface::QUERY_STORE) == DatabaseInterface::QUERY_STORE) {
+                    if (isset($this->_links[$link]->warning_count)) {
+                        $warningsCount = $this->_links[$link]->warning_count;
+                    }
                 }
 
                 openlog('phpMyAdmin', LOG_NDELAY | LOG_PID, LOG_USER);
@@ -340,7 +338,7 @@ class DatabaseInterface
                 syslog(
                     LOG_INFO,
                     'SQL[' . basename($_SERVER['SCRIPT_NAME']) . ']: '
-                    . sprintf('%0.3f', $time) . '(W:' . $warnings[0] . ') > ' . $query
+                    . sprintf('%0.3f', $time) . '(W:' . $warningsCount . ') > ' . $query
                 );
                 closelog();
             }
@@ -470,9 +468,9 @@ class DatabaseInterface
 
         if ($table_type) {
             if ($table_type == 'view') {
-                $sql_where_table .= " AND t.`TABLE_TYPE` != 'BASE TABLE'";
+                $sql_where_table .= " AND t.`TABLE_TYPE` NOT IN ('BASE TABLE', 'SYSTEM VERSIONED')";
             } elseif ($table_type == 'table') {
-                $sql_where_table .= " AND t.`TABLE_TYPE` = 'BASE TABLE'";
+                $sql_where_table .= " AND t.`TABLE_TYPE` IN ('BASE TABLE', 'SYSTEM VERSIONED')";
             }
         }
         return $sql_where_table;
@@ -612,9 +610,9 @@ class DatabaseInterface
                         function ($a, $b) {
                             $aLength = $a['Data_length'] + $a['Index_length'];
                             $bLength = $b['Data_length'] + $b['Index_length'];
-                            return ($aLength == $bLength)
+                            return $aLength == $bLength
                                 ? 0
-                                : ($aLength < $bLength) ? -1 : 1;
+                                : ($aLength < $bLength ? -1 : 1);
                         }
                     );
 
@@ -1456,13 +1454,13 @@ class DatabaseInterface
         );
 
         if ($version) {
-            $this->_version_int = self::versionToInt($version['@@version']);
-            $this->_version_str = $version['@@version'];
-            $this->_version_comment = $version['@@version_comment'];
-            if (stripos($version['@@version'], 'mariadb') !== false) {
+            $this->_version_str = isset($version['@@version']) ? $version['@@version'] : '';
+            $this->_version_int = self::versionToInt($this->_version_str);
+            $this->_version_comment = isset($version['@@version_comment']) ? $version['@@version_comment'] : '';
+            if (stripos($this->_version_str, 'mariadb') !== false) {
                 $this->_is_mariadb = true;
             }
-            if (stripos($version['@@version_comment'], 'percona') !== false) {
+            if (stripos($this->_version_comment, 'percona') !== false) {
                 $this->_is_percona = true;
             }
         }
@@ -1558,11 +1556,31 @@ class DatabaseInterface
     }
 
     /**
+     * This function checks and initialises the phpMyAdmin configuration
+     * storage state before it is used into session cache.
+     *
+     * @return void
+     */
+    public function initRelationParamsCache()
+    {
+        if (strlen($GLOBALS['db'])) {
+            $cfgRelation = $this->relation->getRelationsParam();
+            if (empty($cfgRelation['db'])) {
+                $this->relation->fixPmaTables($GLOBALS['db'], false);
+            }
+        }
+        $cfgRelation = $this->relation->getRelationsParam();
+        if (empty($cfgRelation['db']) && isset($GLOBALS['dblist'])) {
+            if ($GLOBALS['dblist']->databases->exists('phpmyadmin')) {
+                $this->relation->fixPmaTables('phpmyadmin', false);
+            }
+        }
+    }
+
+    /**
      * Function called just after a connection to the MySQL database server has
      * been established. It sets the connection collation, and determines the
      * version of MySQL which is running.
-     *
-     * @param integer $link link type
      *
      * @return void
      */
@@ -1575,18 +1593,7 @@ class DatabaseInterface
              */
             $GLOBALS['dblist'] = new DatabaseList();
 
-            if (strlen($GLOBALS['db'])) {
-                $cfgRelation = $this->relation->getRelationsParam();
-                if (empty($cfgRelation['db'])) {
-                    $this->relation->fixPmaTables($GLOBALS['db'], false);
-                }
-            }
-            $cfgRelation = $this->relation->getRelationsParam();
-            if (empty($cfgRelation['db'])) {
-                if ($GLOBALS['dblist']->databases->exists('phpmyadmin')) {
-                    $this->relation->fixPmaTables('phpmyadmin', false);
-                }
-            }
+            $this->initRelationParamsCache();
         }
     }
 
@@ -2175,7 +2182,7 @@ class DatabaseInterface
             $error .= $separator . __('The server is not responding.');
         } elseif ($error_number == 1698 ) {
             $error .= ' - ' . $error_message;
-            $error .= $separator . '<a href="logout.php' . Url::getCommon() . '">';
+            $error .= $separator . '<a href="logout.php' . Url::getCommon() . '" class="disableAjax">';
             $error .= __('Logout and try as another user.') . '</a>';
         } elseif ($error_number == 1005) {
             if (strpos($error_message, 'errno: 13') !== false) {
@@ -2515,8 +2522,6 @@ class DatabaseInterface
             /* Run post connect for user connections */
             if ($target == DatabaseInterface::CONNECT_USER) {
                 $this->postConnect();
-            } elseif ($target == DatabaseInterface::CONNECT_CONTROL) {
-                $this->postConnectControl();
             }
             return $result;
         }

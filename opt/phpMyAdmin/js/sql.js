@@ -67,6 +67,19 @@ function PMA_autosaveSQLSort (query) {
 }
 
 /**
+ * Clear saved SQL query with sort in local storage or cookie
+ *
+ * @return void
+ */
+function PMA_clearAutoSavedSQLSort () {
+    if (isStorageSupported('localStorage')) {
+        window.localStorage.removeItem('auto_saved_sql_sort');
+    } else {
+        Cookies.set('auto_saved_sql_sort', '');
+    }
+}
+
+/**
  * Get the field name for the current field.  Required to construct the query
  * for grid editing
  *
@@ -114,7 +127,7 @@ function getFieldName ($table_results, $this_field) {
 AJAX.registerTeardown('sql.js', function () {
     $(document).off('click', 'a.delete_row.ajax');
     $(document).off('submit', '.bookmarkQueryForm');
-    $('input#bkm_label').off('keyup');
+    $('input#bkm_label').off('input');
     $(document).off('makegrid', '.sqlqueryresults');
     $(document).off('stickycolumns', '.sqlqueryresults');
     $('#togglequerybox').off('click');
@@ -168,20 +181,20 @@ AJAX.registerOnload('sql.js', function () {
             $('#sqlquery').on('input propertychange', function () {
                 PMA_autosaveSQL($('#sqlquery').val());
             });
+            var useLocalStorageValue = isStorageSupported('localStorage') && typeof window.localStorage.auto_saved_sql_sort !== 'undefined';
             // Save sql query with sort
             if ($('#RememberSorting') !== undefined && $('#RememberSorting').is(':checked')) {
                 $('select[name="sql_query"]').on('change', function () {
-                    PMA_autosaveSQLSort($('select[name="sql_query"]').val());
+                    PMA_autosaveSQLSort($(this).val());
+                });
+                $('.sortlink').on('click', function () {
+                    PMA_clearAutoSavedSQLSort();
                 });
             } else {
-                if (isStorageSupported('localStorage') && window.localStorage.auto_saved_sql_sort !== undefined) {
-                    window.localStorage.removeItem('auto_saved_sql_sort');
-                } else {
-                    Cookies.set('auto_saved_sql_sort', '');
-                }
+                PMA_clearAutoSavedSQLSort();
             }
             // If sql query with sort for current table is stored, change sort by key select value
-            var sortStoredQuery = (isStorageSupported('localStorage') && typeof window.localStorage.auto_saved_sql_sort !== 'undefined') ? window.localStorage.auto_saved_sql_sort : Cookies.get('auto_saved_sql_sort');
+            var sortStoredQuery = useLocalStorageValue ? window.localStorage.auto_saved_sql_sort : Cookies.get('auto_saved_sql_sort');
             if (typeof sortStoredQuery !== 'undefined' && sortStoredQuery !== $('select[name="sql_query"]').val() && $('select[name="sql_query"] option[value="' + sortStoredQuery + '"]').length !== 0) {
                 $('select[name="sql_query"]').val(sortStoredQuery).change();
             }
@@ -227,11 +240,11 @@ AJAX.registerOnload('sql.js', function () {
     });
 
     /* Hides the bookmarkoptions checkboxes when the bookmark label is empty */
-    $('input#bkm_label').keyup(function () {
+    $('input#bkm_label').on('input', function () {
         $('input#id_bkm_all_users, input#id_bkm_replace')
             .parent()
             .toggle($(this).val().length > 0);
-    }).trigger('keyup');
+    }).trigger('input');
 
     /**
      * Attach Event Handler for 'Copy to clipbpard
@@ -293,8 +306,8 @@ AJAX.registerOnload('sql.js', function () {
         });
 
         $('.table_results .column_heading a').each(function () {
-        	//Don't copy ordering number text within <small> tag
-        	textArea.value += $(this).clone().find('small').remove().end().text() + '\t';
+            // Don't copy ordering number text within <small> tag
+            textArea.value += $(this).clone().find('small').remove().end().text() + '\t';
         });
 
         textArea.value += '\n';
@@ -959,7 +972,7 @@ function initStickyColumns ($table_results) {
     return $('<table class="sticky_columns"></table>')
         .insertBefore($table_results)
         .css('position', 'fixed')
-        .css('z-index', '99')
+        .css('z-index', '98')
         .css('width', $table_results.width())
         .css('margin-left', $('#page_content').css('margin-left'))
         .css('top', $('#floating_menubar').height())

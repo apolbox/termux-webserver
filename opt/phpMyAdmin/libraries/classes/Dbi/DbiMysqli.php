@@ -88,12 +88,6 @@ class DbiMysqli implements DbiExtension
 
         $link = mysqli_init();
 
-        if (defined('PMA_ENABLE_LDI')) {
-            mysqli_options($link, MYSQLI_OPT_LOCAL_INFILE, true);
-        } else {
-            mysqli_options($link, MYSQLI_OPT_LOCAL_INFILE, false);
-        }
-
         $client_flags = 0;
 
         /* Optionally compress connection */
@@ -110,6 +104,21 @@ class DbiMysqli implements DbiExtension
                 ! empty($server['ssl_ca_path']) ||
                 ! empty($server['ssl_ciphers'])
             ) {
+                if (! isset($server['ssl_key']) || is_null($server['ssl_key'])) {
+                    $server['ssl_key'] = '';
+                }
+                if (! isset($server['ssl_cert']) || is_null($server['ssl_cert'])) {
+                    $server['ssl_cert'] = '';
+                }
+                if (! isset($server['ssl_ca']) || is_null($server['ssl_ca'])) {
+                    $server['ssl_ca'] = '';
+                }
+                if (! isset($server['ssl_ca_path']) || is_null($server['ssl_ca_path'])) {
+                    $server['ssl_ca_path'] = '';
+                }
+                if (! isset($server['ssl_ciphers']) || is_null($server['ssl_ciphers'])) {
+                    $server['ssl_ciphers'] = '';
+                }
                 mysqli_ssl_set(
                     $link,
                     $server['ssl_key'],
@@ -173,6 +182,12 @@ class DbiMysqli implements DbiExtension
                     return self::connect($user, $password, $server);
             }
             return false;
+        }
+
+        if (defined('PMA_ENABLE_LDI')) {
+            mysqli_options($link, MYSQLI_OPT_LOCAL_INFILE, true);
+        } else {
+            mysqli_options($link, MYSQLI_OPT_LOCAL_INFILE, false);
         }
 
         return $link;
@@ -520,6 +535,9 @@ class DbiMysqli implements DbiExtension
      */
     public function fieldLen($result, $i)
     {
+        if ($i >= $this->numFields($result)) {
+            return false;
+        }
         return mysqli_fetch_field_direct($result, $i)->length;
     }
 
@@ -533,6 +551,9 @@ class DbiMysqli implements DbiExtension
      */
     public function fieldName($result, $i)
     {
+        if ($i >= $this->numFields($result)) {
+            return false;
+        }
         return mysqli_fetch_field_direct($result, $i)->name;
     }
 
@@ -546,6 +567,9 @@ class DbiMysqli implements DbiExtension
      */
     public function fieldFlags($result, $i)
     {
+        if ($i >= $this->numFields($result)) {
+            return false;
+        }
         $f = mysqli_fetch_field_direct($result, $i);
         $type = $f->type;
         $charsetnr = $f->charsetnr;

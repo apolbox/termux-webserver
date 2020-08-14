@@ -549,6 +549,16 @@ class Tracker
 
         $mixed = $GLOBALS['dbi']->fetchAssoc($relation->queryAsControlUser($sql_query));
 
+        // PHP 7.4 fix for accessing array offset on null
+        if (!is_array($mixed)) {
+            $mixed = array(
+                'schema_sql' => null,
+                'data_sql' => null,
+                'tracking' => null,
+                'schema_snapshot' => null,
+            );
+        }
+
         // Parse log
         $log_schema_entries = explode('# log ',  $mixed['schema_sql']);
         $log_data_entries   = explode('# log ',  $mixed['data_sql']);
@@ -686,7 +696,7 @@ class Tracker
                     $result['tablename']  = '' ;
 
                     // In case of CREATE DATABASE, table field of the CreateStatement is actually name of the database
-                    $GLOBALS['db']        = $statement->name->table;
+                    $GLOBALS['db']        = $statement->name->database;
                 } elseif ($options[6] == 'INDEX'
                           || $options[6] == 'UNIQUE INDEX'
                           || $options[6] == 'FULLTEXT INDEX'

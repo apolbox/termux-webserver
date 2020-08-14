@@ -86,7 +86,7 @@ class ServerDatabasesController extends Controller
         $scripts->addFile('server_databases.js');
 
         $this->_setSortDetails();
-        $this->_dbstats = empty($_REQUEST['dbstats']) ? false : true;
+        $this->_dbstats = ! empty($_POST['dbstats']);
         $this->_pos     = empty($_REQUEST['pos']) ? 0 : (int) $_REQUEST['pos'];
 
         /**
@@ -125,6 +125,12 @@ class ServerDatabasesController extends Controller
      */
     public function createDatabaseAction()
     {
+        // lower_case_table_names=1 `DB` becomes `db`
+        if ($GLOBALS['dbi']->getLowerCaseNames() === '1') {
+            $_POST['new_db'] = mb_strtolower(
+                $_POST['new_db']
+            );
+        }
         /**
          * Builds and executes the db creation sql query
          */

@@ -430,6 +430,16 @@ class Privileges
                 __('Allows performing SHOW CREATE VIEW queries.')
             ),
             array(
+                'Delete_history_priv',
+                'DELETE HISTORY',
+                $GLOBALS['strPrivDescDeleteHistoricalRows']
+            ),
+            array(
+                'Delete versioning rows_priv',
+                'DELETE HISTORY',
+                $GLOBALS['strPrivDescDeleteHistoricalRows']
+            ),
+            array(
                 'Create_routine_priv',
                 'CREATE ROUTINE',
                 __('Allows creating stored routines.')
@@ -868,12 +878,8 @@ class Privileges
             )
         );
 
-        $html_output = Template::get('privileges/resource_limits')
+        return Template::get('privileges/resource_limits')
             ->render(array('limits' => $limits));
-
-        $html_output .= '</fieldset>' . "\n";
-
-        return $html_output;
     }
 
     /**
@@ -1082,6 +1088,9 @@ class Privileges
             } elseif ($current_grant == 'Show view_priv') {
                 $tmp_current_grant = 'ShowView_priv';
                 $current_grant = 'Show_view_priv';
+            } elseif ($current_grant == 'Delete versioning rows_priv') {
+                $tmp_current_grant = 'DeleteHistoricalRows_priv';
+                $current_grant = 'Delete_history_priv';
             } else {
                 $tmp_current_grant = $current_grant;
             }
@@ -1803,8 +1812,11 @@ class Privileges
             && $mode == 'change'
         ) {
             $row = $GLOBALS['dbi']->fetchSingleRow(
-                'SELECT `plugin` FROM `mysql`.`user` WHERE '
-                . '`User` = "' . $username . '" AND `Host` = "' . $hostname . '" LIMIT 1'
+                'SELECT `plugin` FROM `mysql`.`user` WHERE `User` = "'
+                . $GLOBALS['dbi']->escapeString($username)
+                . '" AND `Host` = "'
+                . $GLOBALS['dbi']->escapeString($hostname)
+                . '" LIMIT 1'
             );
             // Table 'mysql'.'user' may not exist for some previous
             // versions of MySQL - in that case consider fallback value
@@ -1815,8 +1827,11 @@ class Privileges
             list($username, $hostname) = $GLOBALS['dbi']->getCurrentUserAndHost();
 
             $row = $GLOBALS['dbi']->fetchSingleRow(
-                'SELECT `plugin` FROM `mysql`.`user` WHERE '
-                . '`User` = "' . $username . '" AND `Host` = "' . $hostname . '"'
+                'SELECT `plugin` FROM `mysql`.`user` WHERE `User` = "'
+                . $GLOBALS['dbi']->escapeString($username)
+                . '" AND `Host` = "'
+                . $GLOBALS['dbi']->escapeString($hostname)
+                . '"'
             );
             if (isset($row) && $row && ! empty($row['plugin'])) {
                 $authentication_plugin = $row['plugin'];
@@ -1825,7 +1840,7 @@ class Privileges
             $row = $GLOBALS['dbi']->fetchSingleRow(
                 'SELECT @@default_authentication_plugin'
             );
-            $authentication_plugin = $row['@@default_authentication_plugin'];
+            $authentication_plugin = is_array($row) ? $row['@@default_authentication_plugin'] : null;
         }
 
         return $authentication_plugin;
@@ -1956,8 +1971,8 @@ class Privileges
                     . " `authentication_string` = '" . $hashedPassword
                     . "', `Password` = '', "
                     . " `plugin` = '" . $authentication_plugin . "'"
-                    . " WHERE `User` = '" . $username . "' AND Host = '"
-                    . $hostname . "';";
+                    . " WHERE `User` = '" . $GLOBALS['dbi']->escapeString($username)
+                    . "' AND Host = '" . $GLOBALS['dbi']->escapeString($hostname) . "';";
             } else {
                 // USE 'SET PASSWORD ...' syntax for rest of the versions
                 // Backup the old value, to be reset later
@@ -1967,8 +1982,8 @@ class Privileges
                 $orig_value = $row['@@old_passwords'];
                 $update_plugin_query = "UPDATE `mysql`.`user` SET"
                     . " `plugin` = '" . $authentication_plugin . "'"
-                    . " WHERE `User` = '" . $username . "' AND Host = '"
-                    . $hostname . "';";
+                    . " WHERE `User` = '" . $GLOBALS['dbi']->escapeString($username)
+                    . "' AND Host = '" . $GLOBALS['dbi']->escapeString($hostname) . "';";
 
                 // Update the plugin for the user
                 if (!($GLOBALS['dbi']->tryQuery($update_plugin_query))) {
@@ -2110,8 +2125,10 @@ class Privileges
     public static function getWithClauseForAddUserAndUpdatePrivs()
     {
         $sql_query = '';
-        if ((isset($_POST['Grant_priv']) && $_POST['Grant_priv'] == 'Y')
-            || (isset($GLOBALS['Grant_priv']) && $GLOBALS['Grant_priv'] == 'Y')
+        if (((isset($_POST['Grant_priv']) && $_POST['Grant_priv'] == 'Y')
+            || (isset($GLOBALS['Grant_priv']) && $GLOBALS['Grant_priv'] == 'Y'))
+            && ! ((Util::getServerType() == 'MySQL' || Util::getServerType() == 'Percona Server')
+                && $GLOBALS['dbi']->getVersion() >= 80011)
         ) {
             $sql_query .= ' GRANT OPTION';
         }
@@ -3056,7 +3073,7 @@ class Privileges
 
         if (isset($_GET['validate_username'])) {
             $sql_query = "SELECT * FROM `mysql`.`user` WHERE `User` = '"
-                . $_GET['username'] . "';";
+                . $GLOBALS['dbi']->escapeString($_GET['username']) . "';";
             $res = $GLOBALS['dbi']->query($sql_query);
             $row = $GLOBALS['dbi']->fetchRow($res);
             if (empty($row)) {
@@ -3366,7 +3383,7 @@ class Privileges
 
         $foundRows = array();
         $privileges = array();
-        foreach ($db_rights as $row) {error_log(print_r($row, true));
+        foreach ($db_rights as $row) {
             $onePrivilege = array();
 
             $paramTableName = '';
@@ -3857,7 +3874,7 @@ class Privileges
             }
             $drop_user_error = '';
             foreach ($queries as $sql_query) {
-                if ($sql_query{0} != '#') {
+                if ($sql_query[0] != '#') {
                     if (! $GLOBALS['dbi']->tryQuery($sql_query)) {
                         $drop_user_error .= $GLOBALS['dbi']->getError() . "\n";
                     }
@@ -4010,7 +4027,7 @@ class Privileges
                 // Always use 'authentication_string' column
                 // for MySQL 5.7.6+ since it does not have
                 // the 'password' column at all
-                if (Util::getServerType() == 'MySQL'
+                if (in_array(Util::getServerType(), array('MySQL', 'Percona Server'))
                     && $serverVersion >= 50706
                     && isset($authentication_string)
                 ) {
@@ -4104,7 +4121,7 @@ class Privileges
     {
         $tmp_count = 0;
         foreach ($queries as $sql_query) {
-            if ($sql_query{0} != '#') {
+            if ($sql_query[0] != '#') {
                 $GLOBALS['dbi']->query($sql_query);
             }
             // when there is a query containing a hidden password, take it
@@ -4188,7 +4205,9 @@ class Privileges
 
         list(
             $create_user_real, $create_user_show, $real_sql_query, $sql_query,
-            $password_set_real, $password_set_show
+            $password_set_real, $password_set_show,
+            $alter_real_sql_query,
+            $alter_sql_query
         ) = self::getSqlQueriesForDisplayAndAddUser(
             $username, $hostname, (isset($password) ? $password : '')
         );
@@ -4219,7 +4238,9 @@ class Privileges
                 $sql_query,
                 $username,
                 $hostname,
-                isset($dbname) ? $dbname : null
+                isset($dbname) ? $dbname : null,
+                $alter_real_sql_query,
+                $alter_sql_query
             );
             if (!empty($_POST['userGroup']) && $is_menuwork) {
                 self::setUserGroup($GLOBALS['username'], $_POST['userGroup']);
@@ -4286,11 +4307,11 @@ class Privileges
         // Set the hashing method used by PASSWORD()
         // to be of type depending upon $authentication_plugin
         if ($auth_plugin == 'sha256_password') {
-            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 2');
+            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 2;');
         } elseif ($auth_plugin == 'mysql_old_password') {
-            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 1');
+            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 1;');
         } else {
-            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 0');
+            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 0;');
         }
     }
 
@@ -5003,17 +5024,26 @@ class Privileges
      * Prepares queries for adding users and
      * also create database and return query and message
      *
-     * @param boolean $_error         whether user create or not
-     * @param string  $real_sql_query SQL query for add a user
-     * @param string  $sql_query      SQL query to be displayed
-     * @param string  $username       username
-     * @param string  $hostname       host name
-     * @param string  $dbname         database name
+     * @param boolean $_error               whether user create or not
+     * @param string  $real_sql_query       SQL query for add a user
+     * @param string  $sql_query            SQL query to be displayed
+     * @param string  $username             username
+     * @param string  $hostname             host name
+     * @param string  $dbname               database name
+     * @param string  $alter_real_sql_query SQL query for ALTER USER
+     * @param string  $alter_sql_query      SQL query for ALTER USER to be displayed
      *
      * @return array  $sql_query, $message
      */
-    public static function addUserAndCreateDatabase($_error, $real_sql_query, $sql_query,
-        $username, $hostname, $dbname
+    public static function addUserAndCreateDatabase(
+        $_error,
+        $real_sql_query,
+        $sql_query,
+        $username,
+        $hostname,
+        $dbname,
+        $alter_real_sql_query,
+        $alter_sql_query
     ) {
         if ($_error || (!empty($real_sql_query)
             && !$GLOBALS['dbi']->tryQuery($real_sql_query))
@@ -5021,7 +5051,12 @@ class Privileges
             $_POST['createdb-1'] = $_POST['createdb-2']
                 = $_POST['createdb-3'] = null;
             $message = Message::rawError($GLOBALS['dbi']->getError());
+        } elseif ($alter_real_sql_query !== '' && !$GLOBALS['dbi']->tryQuery($alter_real_sql_query)) {
+            $_POST['createdb-1'] = $_POST['createdb-2']
+                = $_POST['createdb-3'] = null;
+            $message = Message::rawError($GLOBALS['dbi']->getError());
         } else {
+            $sql_query .= $alter_sql_query;
             $message = Message::success(__('You have added a new user.'));
         }
 
@@ -5097,6 +5132,7 @@ class Privileges
      */
     public static function getHashedPassword($password)
     {
+        $password = $GLOBALS['dbi']->escapeString($password);
         $result = $GLOBALS['dbi']->fetchSingleRow(
             "SELECT PASSWORD('" . $password . "') AS `password`;"
         );
@@ -5145,8 +5181,8 @@ class Privileges
      * @param string $hostname host name
      * @param string $password password
      *
-     * @return array ($create_user_real, $create_user_show,$real_sql_query, $sql_query
-     *                $password_set_real, $password_set_show)
+     * @return array ($create_user_real, $create_user_show, $real_sql_query, $sql_query
+     *                $password_set_real, $password_set_show, $alter_real_sql_query, $alter_sql_query)
      */
     public static function getSqlQueriesForDisplayAndAddUser($username, $hostname, $password)
     {
@@ -5236,6 +5272,8 @@ class Privileges
                 $create_user_stmt .= ' USING \'%s\'';
             } elseif ($serverType == 'MariaDB') {
                 $create_user_stmt .= ' IDENTIFIED BY \'%s\'';
+            } elseif (($serverType == 'MySQL' || $serverType == 'Percona Server') && $serverVersion >= 80011) {
+                $create_user_stmt .= ' BY \'%s\'';
             } else {
                 $create_user_stmt .= ' AS \'%s\'';
             }
@@ -5259,9 +5297,8 @@ class Privileges
                     '***'
                 );
             } else {
-                if (! ($serverType == 'MariaDB'
-                    && $isMariaDBPwdPluginActive)
-                ) {
+                if (! (($serverType == 'MariaDB' && $isMariaDBPwdPluginActive)
+                    || ($serverType == 'MySQL' || $serverType == 'Percona Server') && $serverVersion >= 80011)) {
                     $hashedPassword = self::getHashedPassword($_POST['pma_pw']);
                 } else {
                     // MariaDB with validation plugin needs cleartext password
@@ -5304,18 +5341,50 @@ class Privileges
             }
         }
 
+        $alter_real_sql_query = '';
+        $alter_sql_query = '';
+        if (($serverType == 'MySQL' || $serverType == 'Percona Server') && $serverVersion >= 80011) {
+            $sql_query_stmt = '';
+            if ((isset($_POST['Grant_priv']) && $_POST['Grant_priv'] == 'Y')
+                || (isset($GLOBALS['Grant_priv']) && $GLOBALS['Grant_priv'] == 'Y')
+            ) {
+                $sql_query_stmt = ' WITH GRANT OPTION';
+            }
+            $real_sql_query .= $sql_query_stmt;
+            $sql_query .= $sql_query_stmt;
+
+            $alter_sql_query_stmt = sprintf(
+                'ALTER USER \'%s\'@\'%s\'',
+                $slashedUsername,
+                $slashedHostname
+            );
+            $alter_real_sql_query = $alter_sql_query_stmt;
+            $alter_sql_query = $alter_sql_query_stmt;
+        }
+
         // add REQUIRE clause
         $require_clause = self::getRequireClause();
-        $real_sql_query .= $require_clause;
-        $sql_query .= $require_clause;
-
         $with_clause = self::getWithClauseForAddUserAndUpdatePrivs();
-        $real_sql_query .= $with_clause;
-        $sql_query .= $with_clause;
+
+        if (($serverType == 'MySQL' || $serverType == 'Percona Server') && $serverVersion >= 80011) {
+            $alter_real_sql_query .= $require_clause;
+            $alter_sql_query .= $require_clause;
+            $alter_real_sql_query .= $with_clause;
+            $alter_sql_query .= $with_clause;
+        } else {
+            $real_sql_query .= $require_clause;
+            $sql_query .= $require_clause;
+            $real_sql_query .= $with_clause;
+            $sql_query .= $with_clause;
+        }
 
         if (isset($create_user_real)) {
             $create_user_real .= ';';
             $create_user_show .= ';';
+        }
+        if ($alter_real_sql_query !== '') {
+            $alter_real_sql_query .= ';';
+            $alter_sql_query .= ';';
         }
         $real_sql_query .= ';';
         $sql_query .= ';';
@@ -5335,16 +5404,21 @@ class Privileges
             $password_set_real = null;
             $password_set_show = null;
         } else {
-            $password_set_real .= ";";
+            if ($password_set_real !== null) {
+                $password_set_real .= ";";
+            }
             $password_set_show .= ";";
         }
 
-        return array($create_user_real,
+        return array(
+            $create_user_real,
             $create_user_show,
             $real_sql_query,
             $sql_query,
             $password_set_real,
-            $password_set_show
+            $password_set_show,
+            $alter_real_sql_query,
+            $alter_sql_query
         );
     }
 

@@ -134,10 +134,12 @@ if ($response->isAjax() && ! empty($_REQUEST['recent_table'])) {
 }
 
 if ($GLOBALS['PMA_Config']->isGitRevision()) {
+    // If ajax request to get revision
     if (isset($_REQUEST['git_revision']) && $response->isAjax()) {
         GitRevision::display();
         exit;
     }
+    // Else show empty html
     echo '<div id="is_git_revision"></div>';
 }
 
@@ -367,12 +369,14 @@ if ($server > 0 && $GLOBALS['cfg']['ShowServerInfo']) {
     echo '    <li id="li_select_mysql_charset">';
     echo '        ' , __('Server charset:') , ' '
        . '        <span lang="en" dir="ltr">';
-    $unicode = Charsets::$mysql_charset_map['utf-8'];
+
+    $charset = Charsets::getServerCharset($GLOBALS['dbi']);
     $charsets = Charsets::getMySQLCharsetsDescriptions(
         $GLOBALS['dbi'],
         $GLOBALS['cfg']['Server']['DisableIS']
     );
-    echo '           ' , $charsets[$unicode], ' (' . $unicode, ')';
+
+    echo '           ' , (isset($charsets[$charset]) ? $charsets[$charset] : '') , ' (' . $charset, ')';
     echo '        </span>'
        . '    </li>'
        . '  </ul>'

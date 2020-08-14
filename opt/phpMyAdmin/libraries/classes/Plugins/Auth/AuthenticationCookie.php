@@ -275,7 +275,7 @@ class AuthenticationCookie extends AuthenticationPlugin
         $this->user = $this->password = '';
         $GLOBALS['from_cookie'] = false;
 
-        if (isset($_REQUEST['pma_username']) && strlen($_REQUEST['pma_username']) > 0) {
+        if (isset($_POST['pma_username']) && strlen($_POST['pma_username']) > 0) {
 
             // Verify Captcha if it is required.
             if (! empty($GLOBALS['cfg']['CaptchaLoginPrivateKey'])
@@ -323,8 +323,8 @@ class AuthenticationCookie extends AuthenticationPlugin
             }
 
             // The user just logged in
-            $this->user = Core::sanitizeMySQLUser($_REQUEST['pma_username']);
-            $this->password = isset($_REQUEST['pma_password']) ? $_REQUEST['pma_password'] : '';
+            $this->user = Core::sanitizeMySQLUser($_POST['pma_username']);
+            $this->password = isset($_POST['pma_password']) ? $_POST['pma_password'] : '';
             if ($GLOBALS['cfg']['AllowArbitraryServer']
                 && isset($_REQUEST['pma_servername'])
             ) {
@@ -357,12 +357,13 @@ class AuthenticationCookie extends AuthenticationPlugin
         // and $this->password variables from cookies
 
         // check cookies
-        if (empty($_COOKIE['pmaUser-' . $GLOBALS['server']])) {
+        $serverCookie = $GLOBALS['PMA_Config']->getCookie('pmaUser-' . $GLOBALS['server']);
+        if (empty($serverCookie)) {
             return false;
         }
 
         $value = $this->cookieDecrypt(
-            $_COOKIE['pmaUser-' . $GLOBALS['server']],
+            $serverCookie,
             $this->_getEncryptionSecret()
         );
 
@@ -404,11 +405,13 @@ class AuthenticationCookie extends AuthenticationPlugin
         }
 
         // check password cookie
-        if (empty($_COOKIE['pmaAuth-' . $GLOBALS['server']])) {
+        $serverCookie = $GLOBALS['PMA_Config']->getCookie('pmaAuth-' . $GLOBALS['server']);
+
+        if (empty($serverCookie)) {
             return false;
         }
         $value = $this->cookieDecrypt(
-            $_COOKIE['pmaAuth-' . $GLOBALS['server']],
+            $serverCookie,
             $this->_getSessionEncryptionSecret()
         );
         if ($value === false) {
@@ -868,20 +871,22 @@ class AuthenticationCookie extends AuthenticationPlugin
      */
     public function logOut()
     {
+        /** @var Config $PMA_Config */
+        global $PMA_Config;
+
         // -> delete password cookie(s)
         if ($GLOBALS['cfg']['LoginCookieDeleteAll']) {
             foreach ($GLOBALS['cfg']['Servers'] as $key => $val) {
-                $GLOBALS['PMA_Config']->removeCookie('pmaAuth-' . $key);
-                if (isset($_COOKIE['pmaAuth-' . $key])) {
-                    unset($_COOKIE['pmaAuth-' . $key]);
+                $PMA_Config->removeCookie('pmaAuth-' . $key);
+                if ($PMA_Config->issetCookie('pmaAuth-' . $key)) {
+                    $PMA_Config->removeCookie('pmaAuth-' . $key);
                 }
             }
         } else {
-            $GLOBALS['PMA_Config']->removeCookie(
-                'pmaAuth-' . $GLOBALS['server']
-            );
-            if (isset($_COOKIE['pmaAuth-' . $GLOBALS['server']])) {
-                unset($_COOKIE['pmaAuth-' . $GLOBALS['server']]);
+            $cookieName = 'pmaAuth-' . $GLOBALS['server'];
+            $PMA_Config->removeCookie($cookieName);
+            if ($PMA_Config->issetCookie($cookieName)) {
+                $PMA_Config->removeCookie($cookieName);
             }
         }
         parent::logOut();

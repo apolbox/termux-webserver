@@ -228,18 +228,16 @@ class InsertEdit
     /**
      * Add some url parameters
      *
-     * @param array  $url_params         containing $db and $table as url parameters
-     * @param array  $where_clause_array where clauses array
-     * @param string $where_clause       where clause
+     * @param array $url_params         containing $db and $table as url parameters
+     * @param array $where_clause_array where clauses array
      *
      * @return array Add some url parameters to $url_params array and return it
      */
     public function urlParamsInEditMode(
         array $url_params,
-        array $where_clause_array,
-        $where_clause
+        array $where_clause_array
     ) {
-        if (isset($where_clause)) {
+        if (isset($where_clause_array)) {
             foreach ($where_clause_array as $where_clause) {
                 $url_params['where_clause'] = trim($where_clause);
             }
@@ -1627,10 +1625,7 @@ class InsertEdit
                 $readOnly
             );
 
-            $virtual = array(
-                'VIRTUAL', 'PERSISTENT', 'VIRTUAL GENERATED', 'STORED GENERATED'
-            );
-            if (in_array($column['Extra'], $virtual)) {
+            if (preg_match('/(VIRTUAL|PERSISTENT|GENERATED)/', $column['Extra']) && $column['Extra'] !== 'DEFAULT_GENERATED') {
                 $html_output .= '<input type="hidden" name="virtual'
                     . $column_name_appendix . '" value="1" />';
             }
@@ -2080,6 +2075,9 @@ class InsertEdit
             $special_chars = Util::addMicroseconds($column['Default']);
         } elseif ($trueType == 'binary' || $trueType == 'varbinary') {
             $special_chars = bin2hex($column['Default']);
+        } elseif ('text' === substr($trueType, -4)) {
+            $textDefault = substr($column['Default'], 1, -1);
+            $special_chars = stripcslashes($textDefault !== false ? $textDefault : $column['Default']);
         } else {
             $special_chars = htmlspecialchars($column['Default']);
         }
@@ -3103,9 +3101,6 @@ class InsertEdit
     ) {
         $column = $table_columns[$column_number];
         $readOnly = false;
-        if (! $this->userHasColumnPrivileges($column, $insert_mode)) {
-            $readOnly = true;
-        }
 
         if (! isset($column['processed'])) {
             $column = $this->analyzeTableColumnsArray(
@@ -3418,36 +3413,45 @@ class InsertEdit
             if (isset($mime_map[$table_column['Field']])) {
                 $column_mime = $mime_map[$table_column['Field']];
             }
-            $html_output .= $this->getHtmlForInsertEditFormColumn(
-                $table_columns,
-                $column_number,
-                $comments_map,
-                $timestamp_seen,
-                $current_result,
-                $chg_evt_handler,
-                $jsvkey,
-                $vkey,
-                $insert_mode,
-                $current_row,
-                $o_rows,
-                $tabindex,
-                $columns_cnt,
-                $is_upload,
-                $tabindex_for_function,
-                $foreigners,
-                $tabindex_for_null,
-                $tabindex_for_value,
-                $table,
-                $db,
-                $row_id,
-                $titles,
-                $biggest_max_file_size,
-                $default_char_editing,
-                $text_dir,
-                $repopulate,
-                $column_mime,
-                $where_clause
-            );
+
+            $virtual = [
+                'VIRTUAL',
+                'PERSISTENT',
+                'VIRTUAL GENERATED',
+                'STORED GENERATED',
+            ];
+            if (! in_array($table_column['Extra'], $virtual)) {
+                $html_output .= $this->getHtmlForInsertEditFormColumn(
+                    $table_columns,
+                    $column_number,
+                    $comments_map,
+                    $timestamp_seen,
+                    $current_result,
+                    $chg_evt_handler,
+                    $jsvkey,
+                    $vkey,
+                    $insert_mode,
+                    $current_row,
+                    $o_rows,
+                    $tabindex,
+                    $columns_cnt,
+                    $is_upload,
+                    $tabindex_for_function,
+                    $foreigners,
+                    $tabindex_for_null,
+                    $tabindex_for_value,
+                    $table,
+                    $db,
+                    $row_id,
+                    $titles,
+                    $biggest_max_file_size,
+                    $default_char_editing,
+                    $text_dir,
+                    $repopulate,
+                    $column_mime,
+                    $where_clause
+                );
+            }
         } // end for
         $o_rows++;
         $html_output .= '  </tbody>'

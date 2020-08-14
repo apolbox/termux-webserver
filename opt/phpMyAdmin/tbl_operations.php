@@ -24,6 +24,15 @@ require_once 'libraries/common.inc.php';
  */
 require_once 'libraries/check_user_privileges.inc.php';
 
+// lower_case_table_names=1 `DB` becomes `db`
+$lowerCaseNames = $GLOBALS['dbi']->getLowerCaseNames() === '1';
+
+if ($lowerCaseNames) {
+    $GLOBALS['table'] = mb_strtolower(
+        $GLOBALS['table']
+    );
+}
+
 $pma_table = new Table($GLOBALS['table'], $GLOBALS['db']);
 
 /**
@@ -121,6 +130,12 @@ if (isset($_POST['submitoptions'])) {
     $warning_messages = array();
 
     if (isset($_POST['new_name'])) {
+        // lower_case_table_names=1 `DB` becomes `db`
+        if ($lowerCaseNames) {
+            $_POST['new_name'] = mb_strtolower(
+                $_POST['new_name']
+            );
+        }
         // Get original names before rename operation
         $oldTable = $pma_table->getName();
         $oldDb = $pma_table->getDbName();
@@ -198,6 +213,18 @@ if (isset($_POST['submitoptions'])) {
         $operations->changeAllColumnsCollation(
             $GLOBALS['db'], $GLOBALS['table'], $_POST['tbl_collation']
         );
+    }
+
+    if (isset($_POST['tbl_collation']) && empty($_POST['tbl_collation'])) {
+        $response = Response::getInstance();
+        if ($response->isAjax()) {
+            $response->setRequestStatus(false);
+            $response->addJSON(
+                'message',
+                Message::error(__('No collation provided.'))
+            );
+            exit;
+        }
     }
 }
 /**
@@ -454,12 +481,8 @@ if (Partition::havePartitioning()) {
 unset($partition_names);
 
 // Referential integrity check
-// The Referential integrity check was intended for the non-InnoDB
-// tables for which the relations are defined in pmadb
-// so I assume that if the current table is InnoDB, I don't display
-// this choice (InnoDB maintains integrity by itself)
 
-if ($cfgRelation['relwork'] && ! $pma_table->isEngine("INNODB")) {
+if ($cfgRelation['relwork']) {
     $GLOBALS['dbi']->selectDb($GLOBALS['db']);
     $foreign = $relation->getForeigners($GLOBALS['db'], $GLOBALS['table'], '', 'internal');
 

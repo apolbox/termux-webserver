@@ -665,15 +665,11 @@ class Operations
 
             foreach ($old_privs_db as $old_priv) {
                 $newDb_db_privs_query = 'INSERT INTO ' . Util::backquote('db')
-                    . ' VALUES("' . $old_priv[0] . '", "' . $newname . '", "'
-                    . $old_priv[2] . '", "' . $old_priv[3] . '", "' . $old_priv[4]
-                    . '", "' . $old_priv[5] . '", "' . $old_priv[6] . '", "'
-                    . $old_priv[7] . '", "' . $old_priv[8] . '", "' . $old_priv[9]
-                    . '", "' . $old_priv[10] . '", "' . $old_priv[11] . '", "'
-                    . $old_priv[12] . '", "' . $old_priv[13] . '", "' . $old_priv[14]
-                    . '", "' . $old_priv[15] . '", "' . $old_priv[16] . '", "'
-                    . $old_priv[17] . '", "' . $old_priv[18] . '", "' . $old_priv[19]
-                    . '", "' . $old_priv[20] . '", "' . $old_priv[21] . '");';
+                    . ' VALUES("' . $old_priv[0] . '", "' . $newname . '"';
+                for ($i = 2; $i < count($old_priv); $i++) {
+                    $newDb_db_privs_query .= ', "' . $old_priv[$i] . '"';
+                }
+                    $newDb_db_privs_query .= ')';
 
                 $GLOBALS['dbi']->query($newDb_db_privs_query);
             }
@@ -1131,7 +1127,7 @@ class Operations
         } // end if (ARIA)
 
         if (strlen($auto_increment) > 0
-            && $pma_table->isEngine(array('MYISAM', 'ARIA', 'INNODB', 'PBXT'))
+            && $pma_table->isEngine(array('MYISAM', 'ARIA', 'INNODB', 'PBXT', 'ROCKSDB'))
         ) {
             $html_output .= '<tr><td class="vmiddle">'
                 . '<label for="auto_increment_opt">AUTO_INCREMENT</label></td>'
@@ -1237,7 +1233,12 @@ class Operations
         } else {
             $innodb_file_format = '';
         }
-        if ('Barracuda' == $innodb_file_format
+        /**
+         * Newer MySQL/MariaDB always return empty a.k.a '' on $innodb_file_format otherwise
+         * old versions of MySQL/MariaDB must be returning something or not empty.
+         * This patch is to support newer MySQL/MariaDB while also for backward compatibilities.
+         */
+        if (( ('Barracuda' == $innodb_file_format) || ($innodb_file_format == '') )
             && $innodbEnginePlugin->supportsFilePerTable()
         ) {
             $possible_row_formats['INNODB']['DYNAMIC'] = 'DYNAMIC';
@@ -1711,7 +1712,10 @@ class Operations
                 . ' IS NOT NULL';
             $this_url_params = array_merge(
                 $url_params,
-                array('sql_query' => $join_query)
+                [
+                   'sql_query' => $join_query,
+                   'sql_signature' => Core::signSqlQuery($join_query),
+                ]
             );
 
             $html_output .= '<li>'
@@ -1831,7 +1835,7 @@ class Operations
             $table_alters[] = 'delay_key_write = ' . $_POST['new_delay_key_write'];
         }
 
-        if ($pma_table->isEngine(array('MYISAM', 'ARIA', 'INNODB', 'PBXT'))
+        if ($pma_table->isEngine(array('MYISAM', 'ARIA', 'INNODB', 'PBXT', 'ROCKSDB'))
             && ! empty($_POST['new_auto_increment'])
             && (! isset($auto_increment)
             || $_POST['new_auto_increment'] !== $auto_increment)

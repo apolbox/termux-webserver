@@ -50,7 +50,9 @@ class ErrorHandler
         if (!defined('TESTSUITE')) {
             set_error_handler(array($this, 'handleError'));
         }
-        $this->error_reporting = error_reporting();
+        if (function_exists('error_reporting')) {
+            $this->error_reporting = error_reporting();
+        }
     }
 
     /**
@@ -157,16 +159,23 @@ class ErrorHandler
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {
-        /**
-         * Check if Error Control Operator (@) was used, but still show
-         * user errors even in this case.
-         */
-        if (error_reporting() == 0 &&
-            $this->error_reporting != 0 &&
-            ($errno & (E_USER_WARNING | E_USER_ERROR | E_USER_NOTICE)) == 0
-        ) {
-            return;
+        if (function_exists('error_reporting')) {
+            /**
+            * Check if Error Control Operator (@) was used, but still show
+            * user errors even in this case.
+            */
+            if (error_reporting() == 0 &&
+                $this->error_reporting != 0 &&
+                ($errno & (E_USER_WARNING | E_USER_ERROR | E_USER_NOTICE | E_USER_DEPRECATED)) == 0
+            ) {
+                return;
+            }
+        } else {
+            if (($errno & (E_USER_WARNING | E_USER_ERROR | E_USER_NOTICE | E_USER_DEPRECATED)) == 0) {
+                return;
+            }
         }
+
         $this->addError($errstr, $errno, $errfile, $errline, true);
     }
 
@@ -220,6 +229,7 @@ class ErrorHandler
         case E_USER_NOTICE:
         case E_USER_WARNING:
         case E_USER_ERROR:
+        case E_USER_DEPRECATED:
             // just collect the error
             // display is called from outside
             break;
@@ -355,6 +365,7 @@ class ErrorHandler
             $retval .= Url::getHiddenFields(array(
                 'exception_type' => 'php',
                 'send_error_report' => '1',
+                'server' => $GLOBALS['server'],
             ));
             $retval .= '<input type="submit" value="'
                     . __('Report')
@@ -564,7 +575,7 @@ class ErrorHandler
                                 PMA_ignorePhpErrors(false)
                             });'
                         . '$("#pma_ignore_errors_bottom").bind("click", function(e) {
-                            e.preventDefaulut();
+                            e.preventDefault();
                             PMA_ignorePhpErrors()
                         });'
                         . '$("#pma_ignore_all_errors_bottom").bind("click",

@@ -1482,6 +1482,7 @@ class ExportSql extends ExportPlugin
         // Note: SHOW CREATE TABLE, at least in MySQL 5.1.23, does not
         // produce a displayable result for the default value of a BIT
         // column, nor does the mysqldump command. See MySQL bug 35796
+        $GLOBALS['dbi']->tryQuery('USE ' . Util::backquote($db));
         $result = $GLOBALS['dbi']->tryQuery(
             'SHOW CREATE TABLE ' . Util::backquote($db) . '.'
             . Util::backquote($table)
@@ -2415,6 +2416,9 @@ class ExportSql extends ExportPlugin
                         )
                     )
                     . "'";
+                } elseif ($fields_meta[$j]->type === 'geometry') {
+                    // export GIS types as hex
+                    $values[] = '0x' . bin2hex($row[$j]);
                 } elseif (!empty($GLOBALS['exporting_metadata'])
                     && $row[$j] == '@LAST_PAGE'
                 ) {

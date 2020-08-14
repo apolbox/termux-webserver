@@ -39,7 +39,7 @@ $scripts->addFile('vendor/zxcvbn.js');
 
 if ((isset($_GET['viewing_mode'])
     && $_GET['viewing_mode'] == 'server')
-    && $GLOBALS['cfgRelation']['menuswork']
+    && $cfgRelation['menuswork']
 ) {
     $response->addHTML('<div>');
     $response->addHTML(Users::getHtmlForSubMenusOnUsersPage('server_privileges.php'));
@@ -71,6 +71,7 @@ $strPrivDescCreateTmpTable = __('Allows creating temporary tables.');
 $strPrivDescCreateUser = __('Allows creating, dropping and renaming user accounts.');
 $strPrivDescCreateView = __('Allows creating new views.');
 $strPrivDescDelete = __('Allows deleting data.');
+$strPrivDescDeleteHistoricalRows = __('Allows deleting historical rows.');
 $strPrivDescDropDb = __('Allows dropping databases and tables.');
 $strPrivDescDropTbl = __('Allows dropping tables.');
 $strPrivDescEvent = __('Allows to set up events for the event scheduler.');

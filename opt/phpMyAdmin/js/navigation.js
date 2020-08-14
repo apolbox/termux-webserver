@@ -309,19 +309,20 @@ $(function () {
      */
     $(document).on('click', '#pma_navigation_reload', function (event) {
         event.preventDefault();
-        // reload icon object
-        var $icon = $(this).find('img');
-        // source of the hidden throbber icon
-        var icon_throbber_src = $('#pma_navigation').find('.throbber').attr('src');
-        // source of the reload icon
-        var icon_reload_src = $icon.attr('src');
-        // replace the source of the reload icon with the one for throbber
-        $icon.attr('src', icon_throbber_src);
-        PMA_reloadNavigation();
-        // after one second, put back the reload icon
-        setTimeout(function () {
-            $icon.attr('src', icon_reload_src);
-        }, 1000);
+
+        // Find the loading symbol and show it
+        var $icon_throbber_src = $('#pma_navigation').find('.throbber');
+        $icon_throbber_src.show();
+        // TODO Why is a loading symbol both hidden, and invisible?
+        $icon_throbber_src.css('visibility', '');
+
+        // Callback to be used to hide the loading symbol when done reloading
+        function hideNav () {
+            $icon_throbber_src.hide();
+        }
+
+        // Reload the navigation
+        PMA_reloadNavigation(hideNav);
     });
 
     $(document).on('change', '#navi_db_select',  function (event) {
@@ -1127,7 +1128,27 @@ var ResizeHandler = function () {
         var windowWidth = $(window).width();
         $('#pma_navigation').width(pos);
         $('body').css('margin-' + this.left, pos + 'px');
-        $('#floating_menubar, #pma_console')
+        // Issue #15127 : Adding fixed positioning to menubar
+        // Issue #15570 : Panels on homescreen go underneath of floating menubar
+        $('#floating_menubar')
+            .css('margin-' + this.left, $('#pma_navigation').width() + $('#pma_navigation_resizer').width())
+            .css(this.left, 0)
+            .css({
+                'position': 'fixed',
+                'top': 0,
+                'width': '100%',
+                'z-index': 99
+            })
+            .append($('#serverinfo'))
+            .append($('#topmenucontainer'));
+        // Allow the DOM to render, then adjust the padding on the body
+        setTimeout(function () {
+            $('body').css(
+                'padding-top',
+                $('#floating_menubar').outerHeight(true)
+            );
+        }, 2);
+        $('#pma_console')
             .css('margin-' + this.left, (pos + resizer_width) + 'px');
         $resizer.css(this.left, pos + 'px');
         if (pos === 0) {

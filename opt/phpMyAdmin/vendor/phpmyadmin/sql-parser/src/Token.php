@@ -242,7 +242,7 @@ class Token
         switch ($this->type) {
             case self::TYPE_KEYWORD:
                 $this->keyword = strtoupper($this->token);
-                if (!($this->flags & self::FLAG_KEYWORD_RESERVED)) {
+                if (! ($this->flags & self::FLAG_KEYWORD_RESERVED)) {
                     // Unreserved keywords should stay the way they are because they
                     // might represent field names.
                     return $this->token;
@@ -258,17 +258,16 @@ class Token
                 if ($this->flags & self::FLAG_NUMBER_HEX) {
                     if ($this->flags & self::FLAG_NUMBER_NEGATIVE) {
                         $ret = str_replace('-', '', $this->token);
-                        sscanf($ret, '%x', $ret);
-                        $ret = -$ret;
+                        $ret = -hexdec($ret);
                     } else {
-                        sscanf($ret, '%x', $ret);
+                        $ret = hexdec($ret);
                     }
                 } elseif (($this->flags & self::FLAG_NUMBER_APPROXIMATE)
                 || ($this->flags & self::FLAG_NUMBER_FLOAT)
                 ) {
-                    sscanf($ret, '%f', $ret);
-                } else {
-                    sscanf($ret, '%d', $ret);
+                    $ret = (float) $ret;
+                } elseif (! ($this->flags & self::FLAG_NUMBER_BINARY)) {
+                    $ret = (int) $ret;
                 }
 
                 return $ret;
@@ -295,20 +294,20 @@ class Token
                 return $str;
             case self::TYPE_SYMBOL:
                 $str = $this->token;
-                if ((isset($str[0])) && ($str[0] === '@')) {
+                if (isset($str[0]) && ($str[0] === '@')) {
                     // `mb_strlen($str)` must be used instead of `null` because
                     // in PHP 5.3- the `null` parameter isn't handled correctly.
                     $str = mb_substr(
                         $str,
-                        ((!empty($str[1])) && ($str[1] === '@')) ? 2 : 1,
+                        (! empty($str[1]) && ($str[1] === '@')) ? 2 : 1,
                         mb_strlen($str),
                         'UTF-8'
                     );
                 }
-                if ((isset($str[0])) && ($str[0] === ':')) {
+                if (isset($str[0]) && ($str[0] === ':')) {
                     $str = mb_substr($str, 1, mb_strlen($str), 'UTF-8');
                 }
-                if ((isset($str[0])) && (($str[0] === '`')
+                if (isset($str[0]) && (($str[0] === '`')
                 || ($str[0] === '"') || ($str[0] === '\''))
                 ) {
                     $quote = $str[0];
@@ -330,8 +329,16 @@ class Token
     public function getInlineToken()
     {
         return str_replace(
-            array("\r", "\n", "\t"),
-            array('\r', '\n', '\t'),
+            array(
+                "\r",
+                "\n",
+                "\t",
+            ),
+            array(
+                '\r',
+                '\n',
+                '\t',
+            ),
             $this->token
         );
     }
