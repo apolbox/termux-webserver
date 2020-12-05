@@ -9,7 +9,7 @@ checkDB()
     # Cek paket database jija sudah ada
     progress "Cek paket database" 3
 
-    if ! [ command -v $PAKET_DATABASE >/dev/null 2>&1 ]; then
+    if  [ command -v $PAKET_DATABASE >/dev/null 2>&1 ]; then
         echo -e "\e[32;mPaket $PAKET_DATABASE sudah terinstall.\e[0m\n"
         # Menjalankan database
         startDB
