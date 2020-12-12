@@ -60,4 +60,5 @@ Untuk melakukan update lampp server gunakan perintah berikut:
 
 * facebook	: https://www.facebook.com/ayus.filla
 * email		: ayus.sahabat@gmail.com
-* whatsapp	: 088221990408
+* whatsapp	: 088221990408 (sudah mati)
+* new whatsapp  : 08979320749
