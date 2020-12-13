@@ -7,42 +7,42 @@ PAKET_DATABASE="mariadb" || "mysql";
 checkDB()
 {
     # Cek paket database jija sudah ada
-    progress "Cek paket database" 3
-
-    if  [ command -v $PAKET_DATABASE >/dev/null 2>&1 ]; then
-        echo -e "\e[32;mPaket $PAKET_DATABASE sudah terinstall.\e[0m\n"
-        # Menjalankan database
-        startDB
-    else
+    progress "Cek paket database" 2
+    if  ! command -v $PAKET_DATABASE >/dev/null 2>&1  ; then
         echo -e "\e[32;mPaket $PAKET_DATABASE belum terinstall.\e[0m";
         # Install paket database
         apt install mariadb -y
-        # Setelah berhasil terinstall, jalankan database
-        startDB
+    fi
+
+    if  command -v $PAKET_DATABASE >/dev/null 2>&1 ; then
+        echo -e "\e[32;mPaket $PAKET_DATABASE sudah terinstall.\e[0m\n"
+        # Menjalankan database
+        echo -ne "Apakah anda ingin menjalankan database? [y/n] "; read a
+        case ${a} in
+            "Y"|"y")
+               startDB
+               ;;
+         
+            "N"|"n"|*)
+                echo -ne "\nGood bye"
+                exit 1
+                ;;
+        esac
     fi
 }
 
 startDB()
 {
-    echo -ne "Apakah anda ingin menjalankan database? [y/n] "; read a
-    
-    case ${a} in
-        "Y"|"y")
-            echo "$(mysqld_safe -u root &)" > tmp/db.log.txt
+    echo "$(mariadbd-safe -u root &)" > tmp/db.log.txt
 
-            progress "Menjalankan database" 5
-            echo -ne "\e[32;m[√] Layanan database sedang berjalan.\e[0m\n"
-            ;;
-        "N"|"n"|*)
-            echo -ne "\nGood bye"
-            exit 1
-            ;;
-    esac
+    progress "Menjalankan database" 2
+    echo -ne "\e[32;m[√] Layanan database sedang berjalan.\e[0m\n"
 }
 
 stopDB()
 {
-    killall mysqld
+    killall mariadbd
+    progress "Menghentikan database" 2
     echo -ne "\e[31;m[x] Layanan database telah berhenti.\e[0m\n"
 }
 
