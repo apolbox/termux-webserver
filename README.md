@@ -33,7 +33,8 @@ Untuk menjalankan database silahkan ikuti perintah dibawah ini:
 
 Untuk menguninstall webserver masukan perintah berikut:
 
-    $ ./uninstall
+    $ chmod +x ./uninstall.sh
+    $ ./uninstall.sh
 
 # Fitur yang akan datang
 
