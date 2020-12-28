@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Pengaturan tambahan untuk webserver di Linux
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com>
+# @since version v1.0.0
+# @license MIT
+# @link https://github.com/apolbox/lampp
+sumber="/var/www/html"
+target="$HOME/public_html"
+
+settings.addons()
+{
+    $(w3m ${document}/pengaturan.html > ${tmp}/pengaturan.txt)
+    whiptail --msgbox "$(cat ${tmp}/pengaturan.txt)" 15 60 --title "Pengaturan tambahan untuk lampp webserver"
+
+    app.progress "[+] Tunggu sebentar, sedang mengatur symbolic link untuk penyimpanan data." 4
+
+    # Cek symbolic jika sudah ada
+    if [[ -h $target ]]; then
+        printf "\e[31m[!] %s\e[0m\n" "Symbolic link $target sudah ada."
+    else
+        if [[ $(ln -sv $sumber $target) ]]; then
+            $(sudo cp -f "${rootdir}/public_html/index.php" "${target}/")
+            printf "\e[32m[√] %s\e[0m\n" "Sukses membuat symbolic link."
+        else
+            printf "\e[31m[x] %s\e[0m\n" "Gagal membuat symbolic link"
+        fi
+    fi
+    #target=$(whiptail --inputbox "\nTekan cancel jika anda tidak ingin mengatur symbolic link.\n\nContoh : app" 15 40 --title "Masukan target link" 3>&1 1>&2 2>&3)
+}
+
+settings.lamppScript()
+{
+    if [[ -f /bin/lampp ]]; then
+        app.progress "[+] Tunggu sebentar, sedang menginstall lampp script" 4
+        settings.lamppInit
+    else
+        app.progress "[+] Tunggu sebentar, sedang menginstall lampp script" 4
+        settings.lamppInit
+    fi
+}
+
+settings.lamppInit()
+{
+    if [[ -d ~/.lampp/app ]]; then
+        settings.updateLamppLibrary
+    else
+        settings.createLamppLibrary
+    fi
+    $(sudo cp -f ${rootdir}/src/bin/lampp.service /bin/lampp)
+    $(sudo chmod +x /bin/lampp)
+
+    printf "\e[32m[√] %s\e[0m\n" "Berhasil menginstall lampp webserver."
+}
+
+settings.updateLamppLibrary()
+{
+    $(sudo cp -rf ${rootdir}/src/app ~/.lampp/)
+    $(sudo cp -f ${rootdir}/src/libautoload.lampp ~/.lampp/)
+}
+
+settings.createLamppLibrary()
+{
+    $(mkdir ~/.lampp)
+    $(sudo cp -r ${rootdir}/src/app ~/.lampp/)
+    $(sudo cp -f ${rootdir}/src/libautoload.lampp ~/.lampp/)
+}

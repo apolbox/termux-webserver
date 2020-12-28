@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Lampp script binary
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com>
+# @since version v1.0.0
+# @license MIT
+# @link https://github.com/apolbox/lampp
+declare -r rootdir="$PREFIX/lampp_sources"
+
+# Memanggil file autoload
+. ${rootdir}/src/autoload.lampp
+
+# Create class object
+package lampp.android
+
+# Menerima argument dari terminal
+lampp.android.service ${1} ${2}

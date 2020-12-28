@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Install lampp webserver to Android
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com>
+# @since version v1.0.0
+# @license MIT
+# @link https://github.com/apolbox/lampp
+document=${rootdir}/docs
+
+# Paket bawaan yang harus terinstall terlebih dahulu
+requirement=()
+
+# Sambutan instalasi lampp webserver di linux
+android.welcome()
+{
+    # Daftar paket lampp webserver yang akan diinstall.
+    local requirement=(php mariadb lighttpd)
+    local tmp=${1}
+
+    # Header lampp webserver
+    figlet "LAMPP WEBSERVER" > ${tmp}/lampp.txt
+    printf "\e[32m%s\e[0m\n\n" "$(cat ${tmp}/lampp.txt)" > ${tmp}/lampp.txt
+
+    # Sambutan lampp webserver
+    if ! [ -f "${document}/welcome.html" ]; then
+        printf "\e[31mWarning: file %s tidak dapat ditemukan.\e[0m" "${document}/welcome.html"
+    else
+        w3m ${document}/welcome.html >> ${tmp}/lampp.txt
+    fi
+
+    printf "%s\n" "$(cat ${tmp}/lampp.txt)"
+
+    # Tampilkan daftar yang telah terinstall dan belum Terinstall
+    # dan berikan pertanyaan untuk menginstall paket yang belum terinstall.
+    android.packageList $requirement $tmp
+    app.android.requirementPackage $requirement
+}
+
+# Pengecekan paket yang telah terinstall dan belum terinstall
+android.packageList()
+{
+  local tmp=${2}
+  # Daftar paket yang terinstall dan belum terinstall
+  app.progress "📦 Tunggu sebentar, sedang memuat paket" 4
+  printf "\e[34m%s, %s, %s\e[0m\n" "Status" "Nama paket" "Keterangan" > ${tmp}/paket.txt
+
+  for i in ${!requirement[@]}
+  do
+    app.requirementInstalled ${requirement[$i]}
+
+    if [[ $? -eq 0 ]]; then
+      printf "\e[32m[√]\e[0m, %s, %s\n" "${requirement[$i]}" "Terinstall" >> ${tmp}/paket.txt
+    else
+      printf "\e[31m[x]\e[0m, %s, %s\n" "${requirement[$i]}" "Belum terinstall" >> ${tmp}/paket.txt
+    fi
+  done
+  
+  print.printTable ',' "$(cat ${tmp}/paket.txt)"
+}
+
+# Fungsi untuk menjalankan instalasi webserver
+android.webserver()
+{
+    local requirement=($(cat ${rootdir}/requirement.txt | tr ' ' '\n'))
+    local tmp=${rootdir}/storage/tmp
+    # Jika folder tmp tidak ada pada folder storage buat folder tmp
+    [[ -d "${tmp}" ]] || {
+        mkdir ${tmp}
+    }
+    clear
+    app.android.requirementPackage $requirement && android.welcome ${tmp}
+    
+    # Pengaturan tambahan untuk lampp webserver
+    settings.android.addons;
+    settings.android.lamppScript;
+}

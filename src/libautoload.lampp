@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Mendaftarkan aplikasi agar dapat dimuat oleh system.
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com>
+# @since version v1.0.0
+# @license MIT
+# @link https://github.com/apolbox/lampp
+#declare -r appUri="https://raw.githubusercontent.com/apolbox/termux-webserver/dev"
+package()
+{
+    local appdir="${rootdir}/.lampp/app/"
+    local packages=${appdir}/*
+
+    # Mengecek apakah direktori app ada atau mengalami korupsi data
+    # saat pengunduhan file dari server penyimpanan lampp webserver.
+    [[ ! -d ${appdir} ]] ||
+    {
+        # Jika tidak ada file apapun didalam direktori app
+        # maka keluarkan dari program.
+        for packages in ${packages}
+        do
+            if ! [ -f $packages ]; then
+                echo -e "\e[31mError: Paket gagal dimuat.\e[0m"
+                exit 1
+            else
+                . <(sed "s/package/$1/g" ${packages})
+            fi
+        done
+    }
+}

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Lampp script binary
+#
+# @author Ayus Irfang Filaras <ayus.sahabat@gmail.com>
+# @since version v1.0.0
+# @license MIT
+# @link https://github.com/apolbox/lampp
+lampp.service()
+{
+    local options=${1}
+    local modules=${2}
+
+    case ${options} in
+        'start' )
+            sudo /etc/init.d/${modules} ${options}
+            ;;
+
+        'stop' )
+            sudo /etc/init.d/${modules} ${options}
+            ;;
+    esac
+}
+
+lampp.accessLog()
+{
+    print.printTable ' ' "$(cat /var/log/apache2/access.log)"
+}

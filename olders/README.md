@@ -1,6 +1,5 @@
-# lampp
-
-Lampp adalah WebServer untuk Operating System Linux dan Android dengan Termux
+# termux-webserver
+Paket instalasi webserver
 
 Bagi yang ingin install webserver di android
 
@@ -9,27 +8,31 @@ Bagi yang ingin install webserver di android
 2. Internet
 
 # Panduan:
-
 Buka aplikasi termux terlebih dahulu, setelah itu install paket yang dibutuhkan.
 Untuk menginstal paket yang dibutuhkan gunakan perintah dibawah ini:
 
-    $ apt update && apt upgrade
-    $ apt install git -y
+    $ apt install git figlet toilet curl wget -y
 
 Dan masukan perintah dibawah ini:
 
     $ git clone https://github.com/apolbox/termux-webserver.git
     $ cd termux-webserver
-    $ chmod +x ./install.sh
-    $ ./install.sh
+    $ chmod +x lampp-script
+    $ chmod +x lampp-db
+    $ chmod +x ./install
+    $ ./install
 
 Tunggu sampai selesai dan untuk menjalankan webserver ketikan perintah berikut:
 
-    $ lampp start --hosting-only
+    $ lampp [option]
 
-Untuk menjalankan database silahkan ikuti perintah dibawah ini:
+Untuk menggunakan database silahkan ikuti perintah dibawah ini:
+    
+    $ lampp-db install
 
-    $ lampp start --database-only
+Tunggu sampai proses instalasi selesai, untuk menjalankan gunakan perintah berikut:
+
+    $ lampp-db [option]
 
 Untuk menguninstall webserver masukan perintah berikut:
 
@@ -53,16 +56,9 @@ Untuk melakukan update lampp server gunakan perintah berikut:
     $ chmod +x ./update
     $ ./update
 
-# warning
-
-Jangan lakukan update jika kalian sabar menunggu untuk fitur phpMyAdmin, karena walaupun sistem update sudah mencapai versi 1.3 tetapi sistemnya sangat jauh berbeda dengan versi 1.1-beta,
-segera saya akan menambahkan fitur phpMyAdmin pada versi 1.1-beta ini.
-
-# Direktori kerja
-
-Direktori kerja anda berada di <code>/sdcard/htdocs</code>, mohon untuk mengecek penyimpanan internal anda, terima kasih.
 # Kontak kami
 
 * facebook	: https://www.facebook.com/ayus.filla
 * email		: ayus.sahabat@gmail.com
-* new whatsapp  : +628979320749
+* whatsapp	: 088221990408 (sudah mati)
+* new whatsapp  : 08979320749
