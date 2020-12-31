@@ -81,6 +81,10 @@ dan untuk loginnya bisa dicoba dengan:
   <li>password: tidak perlu diisi</li>
 </ul>
 
+# catatan
+
+Jangan lupa lihat <code>mariadb_config.md</code>
+
 # Kontak kami
 
 * facebook	: https://www.facebook.com/ayus.filla
