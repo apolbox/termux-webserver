@@ -59,7 +59,7 @@ Dan bagi yang sudah mendownload silahkan ikuti langkah berikut:
     $ chmod +x ./update.sh
     $ ./update.sh
     
-Setelah update berbasil kini anda dapat menjalankan perintah berikut:
+Setelah update berhasil kini anda dapat menjalankan perintah berikut:
 
     $ lampp start --all
     
