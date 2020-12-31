@@ -30,7 +30,7 @@ Tunggu sampai selesai dan untuk menjalankan webserver ketikan perintah berikut:
 Untuk menjalankan database silahkan ikuti perintah dibawah ini:
 
     $ lampp start --database-only
-
+    
 Untuk menguninstall webserver masukan perintah berikut:
 
     $ chmod +x ./uninstall.sh
@@ -58,6 +58,12 @@ Dan bagi yang sudah mendownload silahkan ikuti langkah berikut:
     $ wget https://raw.githubusercontent.com/apolbox/termux-webserver/master/update.sh
     $ chmod +x ./update.sh
     $ ./update.sh
+    
+Setelah update berbasil kini anda dapat menjalankan perintah berikut:
+
+    $ lampp start --all
+    
+Ini akan menjalankan hosting dan database secara bersama.
 
 # Direktori kerja
 
