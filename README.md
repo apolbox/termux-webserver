@@ -1,5 +1,7 @@
 # lampp
 
+![Screenshoot](screenshoot.jpg)
+
 Lampp adalah WebServer untuk Operating System Linux dan Android dengan Termux
 
 Bagi yang ingin install webserver di android
