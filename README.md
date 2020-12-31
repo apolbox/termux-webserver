@@ -50,20 +50,31 @@ Untuk menguninstall webserver masukan perintah berikut:
 
 Untuk melakukan update lampp server gunakan perintah berikut:
 
-    $ curl -s https://raw.githubusercontent.com/apolbox/termux-webserver/dev/update > ./update
-    $ chmod +x ./update
-    $ ./update
+    $ chmod +x ./update.sh
+    $ ./update.sh
 
-# warning
+Dan bagi yang sudah mendownload silahkan ikuti langkah berikut:
 
-Jangan lakukan update jika kalian sabar menunggu untuk fitur phpMyAdmin, karena walaupun sistem update sudah mencapai versi 1.3 tetapi sistemnya sangat jauh berbeda dengan versi 1.1-beta,
-segera saya akan menambahkan fitur phpMyAdmin pada versi 1.1-beta ini.
+    $ wget https://raw.githubusercontent.com/apolbox/termux-webserver/master/update.sh
+    $ chmod +x ./update.sh
+    $ ./update.sh
 
 # Direktori kerja
 
 Direktori kerja anda berada di <code>/sdcard/htdocs</code>, mohon untuk mengecek penyimpanan internal anda, terima kasih.
+
+# phpMyAdmin
+
+Untuk membuka phpMyAdmin silahkan kunjungi <code>http://localhost:8080/phpmyadmin</code>,
+dan untuk loginnya bisa dicoba dengan:
+
+<ul>
+  <li>username: root atau admin</li>
+  <li>password: tidak perlu diisi</li>
+</ul>
+
 # Kontak kami
 
 * facebook	: https://www.facebook.com/ayus.filla
 * email		: ayus.sahabat@gmail.com
-* new whatsapp  : +628979320749
+* whatsapp  : +628979320749
