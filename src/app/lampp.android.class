@@ -16,21 +16,34 @@ lampp.android.service()
     
     "start")
       case $2 in
+        "--all")
+          app.progress "Menjalankan semua fitur webserver" 3 
+          lighttpd -f $fileConfig
+          echo "$(mariadbd-safe -u root &)" > $HOME/tmp/db.log.txt
+          printf "\n\e[32;m💡 %s\e[0m\n" "webserver berjalan di http://$host:$port"
+        ;;
+        
         "--database-only")
           echo "$(mariadbd-safe -u root &)" > $HOME/tmp/db.log.txt
-          
           app.progress "Menjalankan database" 2
           echo -ne "\e[32;m[√] Layanan database sedang berjalan.\e[0m\n";;
         
         "--hosting-only")
           lighttpd -f $fileConfig
-          echo -e "\e[32;mWebserver berjalan di http://$host:$port/\n\e[0m"
+          app.progress "Menjalankan hosting" 2
+          echo -ne "\e[32;mWebserver berjalan di http://$host:$port/\n\e[0m"
           ;;
       esac
     ;;
 
     "stop")
       case $2 in
+        "--all")
+          killall lighttpd
+          killall mariadbd
+          
+          printf "\n\e[32;m💡 %s\e[0m\n" "webserver telah dihentikan."
+        ;;
         "--database-only")
           killall mariadbd
           app.progress "Menghentikan database" 2
@@ -44,14 +57,14 @@ lampp.android.service()
     ;;
     
     "--help")
-        echo -e "usage: `basename ${0}` [start|stop --database-only atau --hosting-only] [-v version] [--help help]\n"
+        echo -e "usage: `basename ${0}` [start|stop --database-only atau --hosting-only atau --all] [-v version] [--help help]\n"
         ;;
 
     "-v")
 	    echo -e "\e[32;mLampp version \e[31;m$(cat $PREFIX/lampp_sources/version.txt)\e[0m\e[0m";;
 
     *)
-	    echo "usage: `basename ${0}` [start|stop --database-only atau --hosting-only] [-v version] [--help help]" 
+	    echo "usage: `basename ${0}` [start|stop --database-only atau --hosting-only atau --all] [-v version] [--help help]" 
 	    exit 1 # Command to come out of the program with status 1;;
   esac
 }
