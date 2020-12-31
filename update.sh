@@ -33,4 +33,6 @@ mv config.inc.php $PREFIX/lampp_sources/phpMyAdmin/
 sleep 1
 mv lampp.android.class $PREFIX/lampp_sources/src/app/
 sleep 1
+echo "1.1-stable" > $PREFIX/lampp_sources/version.txt
+sleep 1
 printf "\n\e[32;m💡 %s\e[0m\n" "Update selesai."
