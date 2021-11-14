@@ -83,7 +83,7 @@ dan untuk loginnya bisa dicoba dengan:
 
 # catatan
 
-Jangan lupa lihat <code>mariadb_config.md</code>
+Jangan lupa lihat <code>[mariadb_config.md](https://github.com/apolbox/termux-webserver/blob/master/mariadb_config.md)</code>
 
 # Kontak kami
 
