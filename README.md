@@ -81,6 +81,32 @@ dan untuk loginnya bisa dicoba dengan:
   <li>password: tidak perlu diisi</li>
 </ul>
 
+# Pembaruan
+
+Jika kalian mengalami error saat mengakses phpmyadmin, kalian dapat mengikuti cari berikut ini :
+
+1. Langkah pertama
+```bash
+$ mysql -u $(whoami)
+```
+
+2. Langkah kedua
+```bash
+MariaDB [(none)]> ALTER USER 'root'@'localhost' IDENTIFIED BY '';
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> \q
+```
+
+3. Langkah ketiga
+```bash
+$ mysql -u root
+```
+
+Kalau berhasil terbuka jalankan perintah berikut:
+```bash
+$ bash update.sh
+```
+
 # catatan
 
 Jangan lupa lihat <code>[mariadb_config.md](https://github.com/apolbox/termux-webserver/blob/master/mariadb_config.md)</code>

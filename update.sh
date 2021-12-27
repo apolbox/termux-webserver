@@ -7,7 +7,7 @@
 url=(
   "https://raw.githubusercontent.com/apolbox/termux-webserver/master/etc/config/lighttpd.conf"
   "https://raw.githubusercontent.com/apolbox/termux-webserver/master/src/app/lampp.android.class"
-  "https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-languages.zip"
+  "https://files.phpmyadmin.net/phpMyAdmin/5.1.1/phpMyAdmin-5.1.1-all-languages.zip"
   "https://raw.githubusercontent.com/apolbox/termux-webserver/dev/opt/phpMyAdmin/config.inc.php"
 )
 
