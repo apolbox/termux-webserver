@@ -113,6 +113,4 @@ Jangan lupa lihat <code>[mariadb_config.md](https://github.com/apolbox/termux-we
 
 # Kontak kami
 
-* facebook	: https://www.facebook.com/ayus.filla
 * email		: ayus.sahabat@gmail.com
-* whatsapp  : +628979320749
